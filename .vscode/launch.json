@@ -1,0 +1,24 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Python: Current File",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${file}",
+            "console": "integratedTerminal",
+        },
+
+        {
+            "name": "Train Eureka",
+            "type": "debugpy",
+            "request": "launch",
+            "args" : ["--task", "Isaac-Cartpole-Direct-v0", "--max_training_iterations", "100", "--rl_library", "rsl_rl"],
+            "program": "${workspaceFolder}/scripts/train.py",
+            "console": "integratedTerminal",
+        },
+    ]
+}

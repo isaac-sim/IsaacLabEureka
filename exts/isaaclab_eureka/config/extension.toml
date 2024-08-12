@@ -1,0 +1,24 @@
+[package]
+
+# Semantic Versioning is used: https://semver.org/
+version = "0.1.0"
+
+# Description
+category = "isaaclab"
+readme  = "README.md"
+
+title = "Isaac Lab Eureka"
+author = "Isaac Lab Project Developers"
+maintainer = "Isaac Lab Project Developers"
+description="Extension Template for Isaac Lab"
+repository = "https://github.com/isaac-sim/IsaacLabEureka.git"
+keywords = ["extension", "template", "isaaclab", "eureka"]
+
+[dependencies]
+"omni.isaac.lab" = {}
+"omni.isaac.lab_assets" = {}
+"omni.isaac.lab_tasks" = {}
+# NOTE: Add additional dependencies here
+
+[[python.module]]
+name = "isaaclab_eureka"
