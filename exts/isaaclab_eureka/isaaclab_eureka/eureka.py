@@ -3,36 +3,23 @@
 #
 # SPDX-License-Identifier: BSD-3-Clause
 
-import argparse
 import datetime
 import numpy as np
 import os
-from typing import Literal
 from torch.utils.tensorboard import SummaryWriter as TensorboardSummaryWriter
+from typing import Literal
 
 from isaaclab_eureka import EUREKA_ROOT_DIR
-from isaaclab_eureka.managers import EurekaTaskManager, LLMManager
 from isaaclab_eureka.config import (
     DIRECT_WORKFLOW_INITIAL_PROMPT,
     DIRECT_WORKFLOW_TASK_PROMT,
     TASK_FAILURE_FEEBACK_PROMPT,
     TASK_SUCCESS_POST_FEEDBACK_PROMT,
     TASK_SUCCESS_PRE_FEEDBACK_PROMT,
+    TASKS_CFG,
 )
-from isaaclab_eureka.config import TASKS_CFG
+from isaaclab_eureka.managers import EurekaTaskManager, LLMManager
 from isaaclab_eureka.utils import load_tensorboard_logs
-
-
-HARDCODED_REWARD_FUNCTION_1 = """
-def _get_rewards_eureka(self):
-    pole_pos = self.joint_pos[:, self._pole_dof_idx[0]]
-    cart_pos = self.joint_pos[:, self._cart_dof_idx[0]]
-    alive_rew = 1.0 - self.reset_terminated.float()
-    pole_rew = -torch.square(pole_pos)
-    cart_rew = -0.05*torch.abs(cart_pos)
-    reward = alive_rew + pole_rew + cart_rew
-    return reward, {"alive_rew": alive_rew, "pole_rew": pole_rew, "cart_rew": cart_rew}
-"""
 
 
 class Eureka:
@@ -63,14 +50,15 @@ class Eureka:
             num_parallel_runs: The number of runs to execute in parallel.
         """
 
-
         # Load the task description and success metric
         if task in TASKS_CFG:
             task_description = TASKS_CFG[task]["description"]
             successs_metric_string = TASKS_CFG[task].get("successs_metric")
             self._successs_metric_to_win = TASKS_CFG[task].get("successs_metric_to_win")
         else:
-            raise ValueError(f"Task configutation for {task} not found in the `TASKS_CFG` dictionary in config/tasks.py.")
+            raise ValueError(
+                f"Task configuration for {task} not found in the `TASKS_CFG` dictionary in config/tasks.py."
+            )
 
         self._task_description = task_description
         self._feedback_subsampling = feedback_subsampling
@@ -81,9 +69,9 @@ class Eureka:
             gpt_model=gpt_model,
             num_suggestions=self._num_processes,
             temperature=temperature,
-            system_prompt=DIRECT_WORKFLOW_INITIAL_PROMPT
+            system_prompt=DIRECT_WORKFLOW_INITIAL_PROMPT,
         )
-    
+
         print("[INFO]: Setting up the Task Manager...")
         self._task_manager = EurekaTaskManager(
             task=task,
@@ -115,8 +103,7 @@ class Eureka:
         for iter in range(max_eureka_iterations):
             print(f"\n{'#' * 20} Running Eureka Iteration {iter} {'#' * 20} \n")
             # Generate the GPT reward methods
-            llm_outputs = self._llm_manager.prompt(user_prompt=user_prompt,
-                                                   assistant_prompt=assistant_prompt)
+            llm_outputs = self._llm_manager.prompt(user_prompt=user_prompt, assistant_prompt=assistant_prompt)
             gpt_reward_method_strings = llm_outputs["reward_strings"]
             # Log the llm outputs
             for idx, gpt_reward_method_string in enumerate(gpt_reward_method_strings):
@@ -169,10 +156,13 @@ class Eureka:
 
             self._log_iteration_results(iter, results)
 
-            if best_run_results["success_metric"] is not None and best_run_results["success_metric"] >= self._successs_metric_to_win:
+            if (
+                best_run_results["success_metric"] is not None
+                and best_run_results["success_metric"] >= self._successs_metric_to_win
+            ):
                 print(f"Task solved with success metric: {best_run_results['success_metric']}")
                 break
-            
+
             assistant_prompt = results[best_run_idx]["assistant_prompt"]
             user_prompt = results[best_run_idx]["user_prompt"]
 
@@ -191,8 +181,12 @@ class Eureka:
         """
         data = load_tensorboard_logs(log_dir)
         # Compute correlation between the oracle and GPT rewards
-        eureka_rewards = np.array(next((data[key] for key in data if key.endswith("Eureka/eureka_total_rewards")), None))
-        oracle_rewards = np.array(next((data[key] for key in data if key.endswith("Eureka/oracle_total_rewards")), None))
+        eureka_rewards = np.array(
+            next((data[key] for key in data if key.endswith("Eureka/eureka_total_rewards")), None)
+        )
+        oracle_rewards = np.array(
+            next((data[key] for key in data if key.endswith("Eureka/oracle_total_rewards")), None)
+        )
         rewards_correlation = np.corrcoef(eureka_rewards, oracle_rewards)[0, 1]
 
         success_metric_max = None
@@ -241,7 +235,7 @@ class Eureka:
                 else:
                     f.write(f"Training failed with the following exception:\n{result['exception']}\n")
                     self._tensorboard_writer.add_scalar(f"Run_{idx}/success_metric", 0.0, iter)
-                self._tensorboard_writer.add_text(f"Run_{idx}/run_feedback", result['user_prompt'], iter)
+                self._tensorboard_writer.add_text(f"Run_{idx}/run_feedback", result["user_prompt"], iter)
                 f.write("\n")
 
     def _log_final_results(self, best_run_results: dict):

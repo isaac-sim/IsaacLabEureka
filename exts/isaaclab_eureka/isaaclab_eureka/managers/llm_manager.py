@@ -3,28 +3,25 @@
 #
 # SPDX-License-Identifier: BSD-3-Clause
 
-import json
 import os
-import openai
 import re
-import requests
-import time
+
+import openai
 
 
 class LLMManager:
     """Manager to interface with the LLM API.
-    
+
     This class is responsible for interfacing with the LLM API to generate rewards.
     It establishes a connection either to native OpenAI API, or to the Azure OpenAI API.
-    
+
+    The Openai API relies on the following environment variables to be set:
+    - For the native OpenAI API, the environment variable OPENAI_API_KEY must be set.
+    - For the Azure OpenAI API, the environment variables AZURE_OPENAI_ENDPOINT and AZURE_OPENAI_API_KEY must be set.
     """
 
     def __init__(self, gpt_model: str, num_suggestions: int, temperature: float, system_prompt: str):
         """Initialize the LLMManager
-
-        The Openai API relies on the following environment variables:
-        - For the native OpenAI API, the environment variable OPENAI_API_KEY must be set.
-        - For the Azure OpenAI API, the environment variables AZURE_OPENAI_ENDPOINT and AZURE_OPENAI_API_KEY must be set.
 
         Args:
             gpt_model: The model to use for the LLM API
@@ -50,7 +47,7 @@ class LLMManager:
 
         If the response contains a code block of the form "```python ... ```", extract the code block from the response.
         Otherwise, return the entire response of the LLM.
-        
+
         Args:
             response: The response from the LLM API
         """
@@ -60,12 +57,12 @@ class LLMManager:
         if result is not None and len(result) > 0:
             code_string = result[-1]
             # Remove leading newline characters
-            code_string = code_string.lstrip('\n')
+            code_string = code_string.lstrip("\n")
         return code_string
 
     def prompt(self, user_prompt: str, assistant_prompt: str = None) -> list[str]:
         """Call the LLM API to collect responses
-        
+
         Args:
             user_prompt: The user prompt to provide to the LLM API
             assistant_prompt: The assistant prompt to provide to the LLM API
@@ -93,7 +90,7 @@ class LLMManager:
                 n=self._num_suggestions,
             )
         except Exception as e:
-            raise RuntimeError(f"An error occurred while prompting the LLM") from e
+            raise RuntimeError("An error occurred while prompting the LLM") from e
 
         raw_outputs = [response.message.content for response in responses.choices]
         reward_strings = [self.extract_code_from_response(raw_output) for raw_output in raw_outputs]

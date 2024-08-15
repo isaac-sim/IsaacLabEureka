@@ -6,14 +6,21 @@
 
 import os
 import sys
-import time
 from collections import defaultdict
 
 import GPUtil
 from tensorboard.backend.event_processing.event_accumulator import EventAccumulator
 
 
-def load_tensorboard_logs(path):
+def load_tensorboard_logs(path: str):
+    """Load tensorboard logs from a given path.
+
+    Args:
+        path: The path to the tensorboard logs.
+
+    Returns:
+        A dictionary with the tags and their respective values.
+    """
     data = defaultdict(list)
     event_acc = EventAccumulator(path)
     event_acc.Reload()  # Load all data written so far
@@ -27,6 +34,7 @@ def load_tensorboard_logs(path):
 
 
 def get_freest_gpu():
+    """Get the GPU with the most free memory."""
     gpus = GPUtil.getGPUs()
     if not gpus:
         return None
@@ -36,6 +44,8 @@ def get_freest_gpu():
 
 
 class MuteOutput:
+    """Context manager to mute stdout and stderr."""
+
     def __enter__(self):
         self._stdout = sys.stdout
         self._stderr = sys.stderr

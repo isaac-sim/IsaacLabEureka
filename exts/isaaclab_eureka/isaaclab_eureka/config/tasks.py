@@ -7,7 +7,7 @@ TASKS_CFG = {
     "Isaac-Cartpole-Direct-v0": {
         "description": "balance a pole on a cart so that the pole stays upright",
         "successs_metric": "self.episode_length_buf[env_ids].float().mean() / self.max_episode_length",
-        "successs_metric_to_win": 0.99
+        "successs_metric_to_win": 0.99,
     },
 }
 """Configuration for the tasks supported by Isaac Lab Eureka.

@@ -6,10 +6,9 @@
 
 import unittest
 
-from isaaclab_eureka.managers import EurekaTaskManager
 from isaaclab_eureka.config import TASKS_CFG
+from isaaclab_eureka.managers import EurekaTaskManager
 from isaaclab_eureka.utils import load_tensorboard_logs
-
 
 REWARD_FUNCTION_CORRECT = """
 def _get_rewards_eureka(self):
@@ -92,10 +91,10 @@ class TestTaskManager(unittest.TestCase):
         self.assertFalse(results[1]["success"])
         # Check if the exception was reported
         self.assertTrue("exception" in results[1])
-    
+
     def test_bad_convergence(self):
         """Test bad convergence."""
-        results = self._task_manager.train([REWARD_FUNCTION_BAD_CONVERGENCE]*self.num_parallel_runs)
+        results = self._task_manager.train([REWARD_FUNCTION_BAD_CONVERGENCE] * self.num_parallel_runs)
         for result in results:
             # Check the success flag
             self.assertTrue(result["success"])
@@ -103,27 +102,30 @@ class TestTaskManager(unittest.TestCase):
             # Check the success metric
             success_metric = next((data[key] for key in data if key.endswith("Eureka/success_metric")), None)
             self.assertLess(max(success_metric[2:]), 0.4)
-    
+
     def test_raise_wrong_signature_error(self):
         """Test raise wrong signature error."""
-        results = self._task_manager.train([REWARD_FUNCTION_RAISE_WRONG_SIGNATURE_ERROR]*self.num_parallel_runs)
+        results = self._task_manager.train([REWARD_FUNCTION_RAISE_WRONG_SIGNATURE_ERROR] * self.num_parallel_runs)
         # Check the success flag
         for result in results:
             # Check the success flag
             self.assertFalse(result["success"])
             # Check if the exception was reported
-            self.assertTrue(result["exception"] == "The reward function does not start with 'def _get_rewards_eureka(self)'.")
+            self.assertTrue(
+                result["exception"]
+                == "The reward function must be a string that starts with 'def _get_rewards_eureka(self)'."
+            )
 
     def test_runs_correctly_after_fail(self):
         """Test if the task runs correctly after a failed run."""
-        results = self._task_manager.train([REWARD_FUNCTION_RAISE_RUNTIME_ERROR]*self.num_parallel_runs)
+        results = self._task_manager.train([REWARD_FUNCTION_RAISE_RUNTIME_ERROR] * self.num_parallel_runs)
         for result in results:
             # Check the success flag
             self.assertFalse(result["success"])
             # Check if the exception was reported
             self.assertTrue("exception" in result)
         # Run the task again
-        results = self._task_manager.train([REWARD_FUNCTION_CORRECT]*self.num_parallel_runs)
+        results = self._task_manager.train([REWARD_FUNCTION_CORRECT] * self.num_parallel_runs)
         for result in results:
             # Check the success flag
             self.assertTrue(result["success"])

@@ -6,6 +6,7 @@
 
 import argparse
 import json
+
 import requests
 
 
@@ -27,9 +28,8 @@ def main(args_cli: argparse.Namespace):
             response.raise_for_status()
             token = response.json()
             print(f"Response: {token}")
-            print(f"API key: {token['access_token']}")
         except Exception as e:
-            raise RuntimeError(f"An error occurred while getting OAuth token") from e
+            raise RuntimeError("An error occurred while getting OAuth token") from e
 
 
 if __name__ == "__main__":
