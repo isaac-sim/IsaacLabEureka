@@ -1,10 +1,10 @@
 Changelog
 ---------
 
-0.1.0 (2024-01-29)
+0.1.0 (2024-08-15)
 ~~~~~~~~~~~~~~~~~~
 
 Added
 ^^^^^
 
-* Created an initial template for building an extension or project based on Isaac Lab
+* Added the initial Isaac Lab Eureka code.
