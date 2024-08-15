@@ -87,7 +87,12 @@ class Eureka:
         os.makedirs(self._log_dir)
         self._tensorboard_writer = TensorboardSummaryWriter(log_dir=self._log_dir, flush_secs=10)
 
-    def run(self, max_eureka_iterations):
+    def run(self, max_eureka_iterations: int):
+        """Run the Eureka training loop.
+
+        Args:
+            max_eureka_iterations: The maximum number of Eureka iterations to run.
+        """
         # Initial prompts
         user_prompt = DIRECT_WORKFLOW_TASK_PROMT.format(
             task_description=self._task_description,

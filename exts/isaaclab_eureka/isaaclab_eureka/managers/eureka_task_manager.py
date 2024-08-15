@@ -152,7 +152,13 @@ class EurekaTaskManager:
 
         return results
 
-    def _worker(self, idx, rewards_queue):
+    def _worker(self, idx: int, rewards_queue: multiprocessing.Queue):
+        """The worker function that runs the training of the task.
+
+        Args:
+            idx: The index of the worker.
+            rewards_queue: The queue to receive the reward function from the main process
+        """
         self._idx = idx
         while not self.termination_event.is_set():
             if not hasattr(self, "_env"):
