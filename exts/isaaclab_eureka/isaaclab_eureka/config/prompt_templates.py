@@ -58,6 +58,7 @@ Please analyze each existing reward component in the suggested manner above firs
 
 DIRECT_WORKFLOW_TASK_PROMT = """
 Write a reward function for the following task: {task_description}
+The desired task score is: {success_metric_to_win}
 Here is how we get the observations from the environment:
 {get_observations_method_as_string}
 """

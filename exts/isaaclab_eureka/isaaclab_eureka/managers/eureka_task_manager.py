@@ -6,6 +6,7 @@ import inspect
 import math
 import multiprocessing
 import os
+import sys
 import traceback
 import types
 from contextlib import nullcontext
@@ -15,7 +16,7 @@ from typing import Literal
 from isaaclab_eureka.utils import MuteOutput, get_freest_gpu
 
 TEMPLATE_REWARD_STRING = """
-import torch
+from {module_name} import *
 
 def _get_rewards(self):
     rewards_oracle = self._get_rewards_oracle()
@@ -32,7 +33,7 @@ def _get_rewards(self):
 
 # Insert the logic to log the eureka episode sums.
 TEMPLATE_RESET_STRING = """
-import torch
+from {module_name} import *
 
 @torch.inference_mode()
 def _reset_idx(self, env_ids):
@@ -236,17 +237,19 @@ class EurekaTaskManager:
             # rename to environment's initial reset function to _reset_idx_original
             env._reset_idx_original = env._reset_idx
             # set the _get_rewards method to the template method
-            exec(TEMPLATE_REWARD_STRING, namespace)
+            template_reward_string_with_module = TEMPLATE_REWARD_STRING.format(module_name=env.__module__)
+            exec(template_reward_string_with_module, namespace)
             setattr(env, "_get_rewards", types.MethodType(namespace["_get_rewards"], env))
             # set the _reset_idx method to the template method
             template_reset_string_with_success_metric = TEMPLATE_RESET_STRING.format(
+                module_name=env.__module__,
                 success_metric=self._success_metric_string
             )
             exec(template_reset_string_with_success_metric, namespace)
             setattr(env, "_reset_idx", types.MethodType(namespace["_reset_idx"], env))
 
         # Add the GPT generated reward function to the environment
-        get_rewards_method_as_string = "import torch \n" + get_rewards_method_as_string
+        get_rewards_method_as_string = f"from {env.__module__} import * \n" + get_rewards_method_as_string
         exec(get_rewards_method_as_string, namespace)
         setattr(env, "_get_rewards_eureka", types.MethodType(namespace["_get_rewards_eureka"], env))
 

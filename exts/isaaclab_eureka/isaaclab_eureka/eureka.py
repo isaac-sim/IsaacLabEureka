@@ -54,6 +54,7 @@ class Eureka:
             task_description = TASKS_CFG[task]["description"]
             successs_metric_string = TASKS_CFG[task].get("successs_metric")
             self._successs_metric_to_win = TASKS_CFG[task].get("successs_metric_to_win")
+            self._successs_metric_tolerance = TASKS_CFG[task].get("successs_metric_tolerance")
         else:
             raise ValueError(
                 f"Task configuration for {task} not found in the `TASKS_CFG` dictionary in config/tasks.py."
@@ -96,6 +97,7 @@ class Eureka:
         # Initial prompts
         user_prompt = DIRECT_WORKFLOW_TASK_PROMT.format(
             task_description=self._task_description,
+            success_metric_to_win=self._successs_metric_to_win,
             get_observations_method_as_string=self._task_manager.get_observations_method_as_string,
         )
         # The assistant prompt is used to feed the previous LLM output back into the LLM
@@ -162,7 +164,7 @@ class Eureka:
 
             if (
                 best_run_results["success_metric"] is not None
-                and best_run_results["success_metric"] >= self._successs_metric_to_win
+                and abs(best_run_results["success_metric"] - self._successs_metric_to_win) < self._successs_metric_tolerance
             ):
                 print(f"Task solved with success metric: {best_run_results['success_metric']}")
                 break
@@ -216,6 +218,8 @@ class Eureka:
                     # If success metric is available, we do not provide the oracle feedback
                     feedback_string = ""
                 total_feed_back_string += feedback_string
+
+        total_feed_back_string += f"\nThe desired task_score to win is: {self._successs_metric_to_win:.2f}\n"
         return total_feed_back_string, success_metric_max, rewards_correlation
 
     def _log_iteration_results(self, iter: int, results: list):
@@ -232,7 +236,7 @@ class Eureka:
             for idx, result in enumerate(results):
                 f.write(f"{'#' * 20} Iteration: {iter} {'#' * 20}\n\n")
                 f.write(f"{'*' * 20} Run: {idx} {'*' * 20}\n")
-                f.write(f"- GPT reward method {result['gpt_reward_method']}\n")
+                f.write(f"- GPT reward method {result['assistant_prompt']}\n")
                 if result["success"]:
                     f.write(f"Training successful with the following metrics:\n{result['eureka_task_feedback']}\n")
                     self._tensorboard_writer.add_scalar(f"Run_{idx}/success_metric", result["success_metric_max"], iter)
