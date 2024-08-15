@@ -164,7 +164,8 @@ class Eureka:
 
             if (
                 best_run_results["success_metric"] is not None
-                and abs(best_run_results["success_metric"] - self._successs_metric_to_win) < self._successs_metric_tolerance
+                and abs(best_run_results["success_metric"] - self._successs_metric_to_win)
+                < self._successs_metric_tolerance
             ):
                 print(f"Task solved with success metric: {best_run_results['success_metric']}")
                 break

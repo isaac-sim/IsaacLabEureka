@@ -6,7 +6,6 @@ import inspect
 import math
 import multiprocessing
 import os
-import sys
 import traceback
 import types
 from contextlib import nullcontext
@@ -242,8 +241,7 @@ class EurekaTaskManager:
             setattr(env, "_get_rewards", types.MethodType(namespace["_get_rewards"], env))
             # set the _reset_idx method to the template method
             template_reset_string_with_success_metric = TEMPLATE_RESET_STRING.format(
-                module_name=env.__module__,
-                success_metric=self._success_metric_string
+                module_name=env.__module__, success_metric=self._success_metric_string
             )
             exec(template_reset_string_with_success_metric, namespace)
             setattr(env, "_reset_idx", types.MethodType(namespace["_reset_idx"], env))

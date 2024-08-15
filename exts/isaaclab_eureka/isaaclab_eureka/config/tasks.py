@@ -10,8 +10,12 @@ TASKS_CFG = {
         "successs_metric_tolerance": 0.01,
     },
     "Isaac-Quadcopter-Direct-v0": {
-        "description": "bring the quadcopter to the target position: self._desired_pos_w, while making sure it flies smoothly",
-        "successs_metric": "torch.linalg.norm(self._desired_pos_w[env_ids] - self._robot.data.root_pos_w[env_ids], dim=1).mean()",
+        "description": (
+            "bring the quadcopter to the target position: self._desired_pos_w, while making sure it flies smoothly"
+        ),
+        "successs_metric": (
+            "torch.linalg.norm(self._desired_pos_w[env_ids] - self._robot.data.root_pos_w[env_ids], dim=1).mean()"
+        ),
         "successs_metric_to_win": 0.0,
         "successs_metric_tolerance": 0.2,
     },
