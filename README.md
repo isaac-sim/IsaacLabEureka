@@ -36,7 +36,7 @@ The Openai API key has to be exposed to the script via an environment variable. 
 <summary>Linux</summary>
 
 ```
-OPENAI_API_KEY=your_key scripts/python train.py --task=Isaac-Cartpole-Direct-v0 --max_training_iterations=40 --rl_library="rl_games"
+OPENAI_API_KEY=your_key scripts/python train.py --task=Isaac-Cartpole-Direct-v0 --max_training_iterations=100 --rl_library="rl_games"
 ```
 </details>
 
@@ -46,13 +46,13 @@ OPENAI_API_KEY=your_key scripts/python train.py --task=Isaac-Cartpole-Direct-v0 
 **Powershell**
 ```
 $env:OPENAI_API_KEY="your_key"
-python scripts\train.py --task=Isaac-Cartpole-Direct-v0 --max_training_iterations=40 --rl_library="rl_games"
+python scripts\train.py --task=Isaac-Cartpole-Direct-v0 --max_training_iterations=100 --rl_library="rl_games"
 ```
 
 **Command line**
 ```
 set OPENAI_API_KEY=your_key
-python scripts\train.py --task=Isaac-Cartpole-Direct-v0 --max_training_iterations=40 --rl_library="rl_games"
+python scripts\train.py --task=Isaac-Cartpole-Direct-v0 --max_training_iterations=100 --rl_library="rl_games"
 ```
 </details>
 
@@ -62,7 +62,7 @@ python scripts\train.py --task=Isaac-Cartpole-Direct-v0 --max_training_iteration
 <summary>Linux</summary>
 
 ```
-AZURE_OPENAI_API_KEY=your_key AZURE_OPENAI_ENDPOINT=azure_endpoint_url python scripts/train.py --task=Isaac-Cartpole-Direct-v0 --max_training_iterations=40 --rl_library="rl_games"
+AZURE_OPENAI_API_KEY=your_key AZURE_OPENAI_ENDPOINT=azure_endpoint_url python scripts/train.py --task=Isaac-Cartpole-Direct-v0 --max_training_iterations=100 --rl_library="rl_games"
 ```
 </details>
 
@@ -73,14 +73,14 @@ AZURE_OPENAI_API_KEY=your_key AZURE_OPENAI_ENDPOINT=azure_endpoint_url python sc
 ```
 $env:AZURE_OPENAI_API_KEY="your_key"
 $env:AZURE_OPENAI_ENDPOINT="azure_endpoint_url"
-python scripts\train.py --task=Isaac-Cartpole-Direct-v0 --max_training_iterations=40 --rl_library="rl_games"
+python scripts\train.py --task=Isaac-Cartpole-Direct-v0 --max_training_iterations=100 --rl_library="rl_games"
 ```
 
 **Command line**
 ```
 set AZURE_OPENAI_API_KEY=your_key
 set AZURE_OPENAI_ENDPOINT=azure_endpoint_url
-python scripts\train.py --task=Isaac-Cartpole-Direct-v0 --max_training_iterations=40 --rl_library="rl_games"
+python scripts\train.py --task=Isaac-Cartpole-Direct-v0 --max_training_iterations=100 --rl_library="rl_games"
 ```
 </details>
 
