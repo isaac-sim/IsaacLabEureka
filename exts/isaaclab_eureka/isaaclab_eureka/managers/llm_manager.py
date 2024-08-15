@@ -45,14 +45,14 @@ class LLMManager:
         """Extract the code component from the LLM response
 
         If the response contains a code block of the form "```python ... ```", extract the code block from the response.
-        Otherwise, return the entire response of the LLM.
+        Otherwise, return an empty string.
 
         Args:
             response: The response from the LLM API
         """
         pattern = r"```python(.*?)```"
         result = re.findall(pattern, response, re.DOTALL)
-        code_string = response
+        code_string = ""
         if result is not None and len(result) > 0:
             code_string = result[-1]
             # Remove leading newline characters

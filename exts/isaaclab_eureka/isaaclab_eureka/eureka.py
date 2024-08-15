@@ -227,7 +227,7 @@ class Eureka:
             for idx, result in enumerate(results):
                 f.write(f"{'#' * 20} Iteration: {iter} {'#' * 20}\n\n")
                 f.write(f"{'*' * 20} Run: {idx} {'*' * 20}\n")
-                f.write(f"- GPT reward method {result['assistant_prompt']}\n")
+                f.write(f"- GPT reward method {result['gpt_reward_method']}\n")
                 if result["success"]:
                     f.write(f"Training successful with the following metrics:\n{result['eureka_task_feedback']}\n")
                     self._tensorboard_writer.add_scalar(f"Run_{idx}/success_metric", result["success_metric_max"], iter)
