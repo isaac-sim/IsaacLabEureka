@@ -1,4 +1,10 @@
-"""Installation script for the 'ext_template' python package."""
+# Copyright (c) 2022-2024, The IsaacLab Project Developers.
+# All rights reserved.
+#
+# SPDX-License-Identifier: BSD-3-Clause
+
+
+"""Installation script for the 'isaaclab_eureka' python package."""
 
 import os
 import toml
@@ -12,14 +18,15 @@ EXTENSION_TOML_DATA = toml.load(os.path.join(EXTENSION_PATH, "config", "extensio
 
 # Minimum dependencies required prior to installation
 INSTALL_REQUIRES = [
-    # NOTE: Add dependencies
-    "psutil",
+    "openai",
+    "gputil",
+    "matplotlib",
 ]
 
 # Installation operation
 setup(
-    name="ext_template",
-    packages=["ext_template"],
+    name="isaaclab_eureka",
+    packages=["isaaclab_eureka"],
     author=EXTENSION_TOML_DATA["package"]["author"],
     maintainer=EXTENSION_TOML_DATA["package"]["maintainer"],
     url=EXTENSION_TOML_DATA["package"]["repository"],
@@ -33,8 +40,9 @@ setup(
     classifiers=[
         "Natural Language :: English",
         "Programming Language :: Python :: 3.10",
-        "Isaac Sim :: 2023.1.1",
         "Isaac Sim :: 4.0.0",
+        "Isaac Sim :: 4.1.0",
+        "Isaac Lab :: 1.1.0",
     ],
     zip_safe=False,
 )
