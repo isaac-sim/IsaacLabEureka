@@ -1,8 +1,6 @@
-# Copyright (c) 2022-2024, The IsaacLab Project Developers.
-# All rights reserved.
+# Copyright (c) 2022-2024, The Isaac Lab Project Developers.
 #
-# SPDX-License-Identifier: BSD-3-Clause
-
+# SPDX-License-Identifier: MIT
 
 """Installation script for the 'isaaclab_eureka' python package."""
 
