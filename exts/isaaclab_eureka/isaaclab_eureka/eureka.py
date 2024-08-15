@@ -1,6 +1,6 @@
-# Copyright (c) 2022-2024, The Isaac Lab Project Developers.
+# Copyright (c) 2024, The Isaac Lab Project Developers.
 #
-# SPDX-License-Identifier: MIT
+# SPDX-License-Identifier: Apache-2.0
 
 import datetime
 import numpy as np
