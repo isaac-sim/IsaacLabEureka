@@ -28,7 +28,7 @@ We support the native Openai and the Azure Openai APIs.
 
 ## Running Isaac Lab Eureka
 
-The Openai API key has to be exposed to the script via an environment variable. We follow the Openai API convention an use ``OPENAI_API_KEY``, ``AZURE_OPENAI_API_KEY``, and ``AZURE_OPENAI_ENDPOINT``.
+The Openai API key has to be exposed to the script via an environment variable. We follow the Openai API convention and use ``OPENAI_API_KEY``, ``AZURE_OPENAI_API_KEY``, and ``AZURE_OPENAI_ENDPOINT``.
 
 ### Running with the Openai API
 
