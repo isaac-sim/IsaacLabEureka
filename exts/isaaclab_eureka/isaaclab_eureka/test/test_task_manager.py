@@ -19,29 +19,26 @@ def _get_rewards_eureka(self):
     cart_rew = -0.05*torch.abs(cart_pos)
     reward = alive_rew + pole_rew + cart_rew
     return reward, {"alive_rew": alive_rew, "pole_rew": pole_rew, "cart_rew": cart_rew}
-"""
+""".lstrip("\n")
 
 
 REWARD_FUNCTION_BAD_CONVERGENCE = """
 def _get_rewards_eureka(self):
-    pole_pos = self.joint_pos[:, self._pole_dof_idx[0]]
-    cart_pos = self.joint_pos[:, self._cart_dof_idx[0]]
-    pole_rew = torch.square(pole_pos)
-    cart_rew = torch.abs(cart_pos)
-    reward = pole_rew + cart_rew
-    return reward, {"pole_rew": pole_rew, "cart_rew": cart_rew}
-"""
+    reset_rew = self.reset_terminated.float()
+    reward = reset_rew
+    return reward, {"reset_rew": reset_rew}
+""".lstrip("\n")
 
 
 REWARD_FUNCTION_RAISE_RUNTIME_ERROR = """
 def _get_rewards_eureka(self):
     pole_pos = self.joint_pos[:, self._pole_dof_idx[0]]
     cart_pos = self.joint_pos[:, self._cart_dof_idx[0]]
-    pole_rew = -0*torch.square(pole_pos)
+    pole_rew = -0.0*torch.square(pole_pos)
     cart_rew = -0.0*torch.abs(cart_pos)
     reward = alive_rew + pole_rew + cart_rew
     return reward, {"alive_rew": alive_rew, "pole_rew": pole_rew, "cart_rew": cart_rew}
-"""
+""".lstrip("\n")
 
 
 REWARD_FUNCTION_RAISE_WRONG_SIGNATURE_ERROR = """
@@ -53,7 +50,7 @@ def get_rewards_eureka(self):
     cart_rew = -0.05*torch.abs(cart_pos)
     reward = alive_rew + pole_rew + cart_rew
     return reward, {"alive_rew": alive_rew, "pole_rew": pole_rew, "cart_rew": cart_rew}
-"""
+""".lstrip("\n")
 
 
 class TestTaskManager(unittest.TestCase):
@@ -63,14 +60,14 @@ class TestTaskManager(unittest.TestCase):
     def setUpClass(cls):
         """Set up the test fixture."""
         task = "Isaac-Cartpole-Direct-v0"
-        cls.num_parallel_runs = 1
+        cls.num_parallel_runs = 2
         cls._task_manager = EurekaTaskManager(
             task=task,
             device="cuda",
-            rl_library="rl_games",
+            rl_library="rsl_rl",
             num_processes=cls.num_parallel_runs,
             max_training_iterations=100,
-            success_metric_string=TASKS_CFG[task].get("successs_metric", ""),
+            success_metric_string=TASKS_CFG[task].get("successs_metric"),
         )
 
     @classmethod
