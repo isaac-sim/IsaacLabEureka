@@ -8,6 +8,8 @@ import argparse
 import math
 import torch
 
+from rl_games.common.player import BasePlayer
+
 from isaaclab_eureka.utils import get_freest_gpu
 
 
@@ -50,7 +52,7 @@ def main(args_cli):
 
         agent_cfg: RslRlOnPolicyRunnerCfg = load_cfg_from_registry(args_cli.task, "rsl_rl_cfg_entry_point")
         agent_cfg.device = device
-        
+
         env = RslRlVecEnvWrapper(env)
         ppo_runner = OnPolicyRunner(env, agent_cfg.to_dict(), log_dir=None, device=agent_cfg.device)
         ppo_runner.load(checkpoint)
@@ -87,9 +89,7 @@ def main(args_cli):
             "IsaacRlgWrapper",
             lambda config_name, num_actors, **kwargs: RlGamesGpuEnv(config_name, num_actors, **kwargs),
         )
-        env_configurations.register(
-            "rlgpu", {"vecenv_type": "IsaacRlgWrapper", "env_creator": lambda **kwargs: env}
-        )
+        env_configurations.register("rlgpu", {"vecenv_type": "IsaacRlgWrapper", "env_creator": lambda **kwargs: env})
 
         # set number of actors into agent config
         agent_cfg["params"]["config"]["num_actors"] = env.unwrapped.num_envs
@@ -106,7 +106,6 @@ def main(args_cli):
         obs = env.reset()
         if isinstance(obs, dict):
             obs = obs["obs"]
-        timestep = 0
         # required: enables the flag for batched observations
         _ = agent.get_batch_size(obs, 1)
         # initialize RNN states if used
@@ -137,20 +136,25 @@ def main(args_cli):
     simulation_app.close()
 
 
-
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Train an RL agent with Eureka.")
     parser.add_argument("--task", type=str, default="Isaac-Cartpole-Direct-v0", help="Name of the task.")
     parser.add_argument("--num_envs", type=int, default=None, help="Number of environments to simulate.")
     parser.add_argument("--device", type=str, default="cuda", help="The device to run training on.")
     parser.add_argument("--checkpoint", type=str, default=None, help="Absolute path to model checkpoint.")
-    parser.add_argument("--rl_library", type=str, default="rsl_rl", choices=["rsl_rl", "rl_games"], help="The RL training library to use.")
     parser.add_argument(
-            "--headless",
-            action="store_true",
-            default=False,
-            help="Force display off at all times.",
-        )
+        "--rl_library",
+        type=str,
+        default="rsl_rl",
+        choices=["rsl_rl", "rl_games"],
+        help="The RL training library to use.",
+    )
+    parser.add_argument(
+        "--headless",
+        action="store_true",
+        default=False,
+        help="Force display off at all times.",
+    )
     args_cli = parser.parse_args()
 
     # Run the main function

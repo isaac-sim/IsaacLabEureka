@@ -244,6 +244,11 @@ class EurekaTaskManager:
             template_reset_string_with_success_metric = TEMPLATE_RESET_STRING.format(
                 module_name=env.__module__, success_metric=self._success_metric_string
             )
+            # hack: can't enable inference with rl_games
+            if self._rl_library == "rl_games":
+                template_reset_string_with_success_metric = template_reset_string_with_success_metric.replace(
+                    "@torch.inference_mode()", ""
+                )
             exec(template_reset_string_with_success_metric, namespace)
             setattr(env, "_reset_idx", types.MethodType(namespace["_reset_idx"], env))
 

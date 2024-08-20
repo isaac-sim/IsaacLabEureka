@@ -213,7 +213,7 @@ class Eureka:
                 metric_max = max(metric_data)
                 metric_mean = sum(metric_data) / len(metric_data)
                 # Best metric is the one closest to the target
-                metric_best = np.mean(np.abs(metric_data - self._successs_metric_to_win))
+                metric_best = np.min(np.abs(np.array(metric_data) - self._successs_metric_to_win))
                 if metric_name == "success_metric":
                     metric_name = "task_score"
                     success_metric_max = metric_best
