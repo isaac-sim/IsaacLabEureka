@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-"""Template strings used from prompting in Isaac Lab Eureka."""
+"""Template strings used for prompting in Isaac Lab Eureka."""
 
 
 DIRECT_WORKFLOW_REWARD_FORMATTING_INSTRUCTIONS = """

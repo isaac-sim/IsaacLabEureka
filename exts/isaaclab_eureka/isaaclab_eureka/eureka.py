@@ -140,17 +140,20 @@ class Eureka:
                     results[idx]["success_metric_max"] = success_metric_max
                     results[idx]["rewards_correlation"] = rewards_correlation
 
+                    # Check the best performing metric, determined by the minimum distance from the win target
                     if success_metric_max is not None and (
-                        iter_best_success_metric is None or success_metric_max > iter_best_success_metric
+                        iter_best_success_metric is None
+                        or np.abs(success_metric_max - self._successs_metric_to_win)
+                        < np.abs(iter_best_success_metric - self._successs_metric_to_win)
                     ):
                         # Store the best run for this iteration
                         iter_best_success_metric = success_metric_max
                         best_run_idx = idx
 
                         # Store the best metric across all iterations
-                        if (
-                            best_run_results["success_metric"] is None
-                            or iter_best_success_metric > best_run_results["success_metric"]
+                        if best_run_results["success_metric"] is None or (
+                            np.abs(iter_best_success_metric - self._successs_metric_to_win)
+                            < np.abs(best_run_results["success_metric"] - self._successs_metric_to_win)
                         ):
                             best_run_results["success_metric"] = iter_best_success_metric
                             best_run_results["gpt_reward_method"] = gpt_reward_method_strings[idx]
@@ -164,7 +167,7 @@ class Eureka:
 
             if (
                 best_run_results["success_metric"] is not None
-                and abs(best_run_results["success_metric"] - self._successs_metric_to_win)
+                and np.abs(best_run_results["success_metric"] - self._successs_metric_to_win)
                 < self._successs_metric_tolerance
             ):
                 print(f"Task solved with success metric: {best_run_results['success_metric']}")
@@ -194,7 +197,9 @@ class Eureka:
         oracle_rewards = np.array(
             next((data[key] for key in data if key.endswith("Eureka/oracle_total_rewards")), None)
         )
-        rewards_correlation = np.corrcoef(eureka_rewards, oracle_rewards)[0, 1]
+        # Sometimes, the tensorboard logging is not complete, we take the minimum length between the two buffers
+        min_length = min(eureka_rewards.shape[0], oracle_rewards.shape[0])
+        rewards_correlation = np.corrcoef(eureka_rewards[:min_length], oracle_rewards[:min_length])[0, 1]
 
         success_metric_max = None
         # Make a summary of each plot in the tensorboard logs
@@ -207,9 +212,11 @@ class Eureka:
                 metric_min = min(metric_data)
                 metric_max = max(metric_data)
                 metric_mean = sum(metric_data) / len(metric_data)
+                # Best metric is the one closest to the target
+                metric_best = np.mean(np.abs(metric_data - self._successs_metric_to_win))
                 if metric_name == "success_metric":
                     metric_name = "task_score"
-                    success_metric_max = metric_max
+                    success_metric_max = metric_best
                 data_string = [f"{data:.2f}" for data in metric_data[::feedback_subsampling]]
                 feedback_string = (
                     f"{metric_name}: {data_string}, Min: {metric_min:.2f}, Max: {metric_max:.2f}, Mean:"
@@ -229,10 +236,11 @@ class Eureka:
             print(f"{'*' * 20} Run: {idx} {'*' * 20}")
             if result["success"]:
                 print(f"Training successful with the following metrics:\n{result['eureka_task_feedback']}")
+                print(f"Reward correlation with oracle rewards:\n{result['rewards_correlation']}")
             else:
                 print(f"Training failed with the following exception:\n{result['exception']}\n")
 
-        # write the iterationsresults to file
+        # write the iterations results to file
         with open(f"{self._log_dir}/eureka_iterations.txt", "a") as f:
             for idx, result in enumerate(results):
                 f.write(f"{'#' * 20} Iteration: {iter} {'#' * 20}\n\n")
@@ -240,6 +248,7 @@ class Eureka:
                 f.write(f"- GPT reward method {result['assistant_prompt']}\n")
                 if result["success"]:
                     f.write(f"Training successful with the following metrics:\n{result['eureka_task_feedback']}\n")
+                    f.write(f"Reward correlation with oracle rewards:\n{result['rewards_correlation']}\n")
                     self._tensorboard_writer.add_scalar(f"Run_{idx}/success_metric", result["success_metric_max"], iter)
                 else:
                     f.write(f"Training failed with the following exception:\n{result['exception']}\n")

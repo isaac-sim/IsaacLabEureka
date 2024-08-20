@@ -22,11 +22,12 @@ We support the native Openai and the Azure Openai APIs.
 
 - Using a python interpreter that has Isaac Lab installed, install Isaac Lab Eureka
     ```
-    cd ext/isaaclab_eureka
-    python -m pip install -e .
+    python -m pip install -e ext/isaaclab_eureka
     ```
 
 ## Running Isaac Lab Eureka
+
+Run Eureka from the root repo directory ``IsaacLabEureka``.
 
 The Openai API key has to be exposed to the script via an environment variable. We follow the Openai API convention and use ``OPENAI_API_KEY``, ``AZURE_OPENAI_API_KEY``, and ``AZURE_OPENAI_ENDPOINT``.
 
@@ -36,7 +37,7 @@ The Openai API key has to be exposed to the script via an environment variable. 
 <summary>Linux</summary>
 
 ```
-OPENAI_API_KEY=your_key scripts/python train.py --task=Isaac-Cartpole-Direct-v0 --max_training_iterations=100 --rl_library="rl_games"
+OPENAI_API_KEY=your_key python scripts/train.py --task=Isaac-Cartpole-Direct-v0 --max_training_iterations=100 --rl_library="rl_games"
 ```
 </details>
 
@@ -83,6 +84,40 @@ set AZURE_OPENAI_ENDPOINT=azure_endpoint_url
 python scripts\train.py --task=Isaac-Cartpole-Direct-v0 --max_training_iterations=100 --rl_library="rl_games"
 ```
 </details>
+
+### Running Eureka Trained Policies
+
+For each Eureka run, logs for the Eureka iterations are available under ``IsaacLabEureka/logs/eureka``.
+This directory holds files containing the output from each Eureka iteration, as well as output and metrics
+of the final Eureka results for the task.
+
+In addition, trained policies during the Eureka run are saved under ``IsaacLabEureka/logs/rl_runs``.
+This directory contains checkpoints for each valid Eureka run, similar to the checkpoints available
+when training with Isaac Lab.
+
+To run inference on an Eureka-trained policy, locate the path to the desired checkpoint and run the ``scripts/play.pt`` script.
+
+For RSL RL, run:
+
+```
+    python scripts/play.py --task=Isaac-Cartpole-Direct-v0 --lcheckpoint=/path/to/desired/checkpoint.pt --num_envs=20 --rl_library="rsl_rl"
+```
+
+For RL-Games, run:
+
+```
+    python scripts/play.py --task=Isaac-Cartpole-Direct-v0 --checkpoint=/path/to/desired/checkpoint.pth --num_envs=20 --rl_library="rl_games"
+```
+
+### Limitations
+
+- Isaac Lab Eureka currently only supports tasks implemented in the direct-workflow style, basing off of the ``DirectRLEnv`` class.
+Available examples can be found in the [task config](exts/isaaclab_eureka/isaaclab_eureka/tasks.py). Following the ``DirectRLEnv``
+interface, we assume each task has the observation function implemented in a method named ``_get_observations()``.
+- Due to limitations of multiprocessing on Windows, running with argument ``num_parallel_runs`` > 1 is not supported on Windows.
+- When running with ``num_parallel_runs > 1`` on a single-GPU machine, training will run in parallel in the background and CPU and memory usage will increase.
+- Best policy is selected based on the ``successs_metric`` defined for the task. For best performance, make sure to define an accurate success metric in the task config to guide the reward function generation process.
+
 
 ## Code formatting
 

@@ -16,6 +16,7 @@ from isaaclab_eureka.utils import MuteOutput, get_freest_gpu
 
 TEMPLATE_REWARD_STRING = """
 from {module_name} import *
+import torch
 
 def _get_rewards(self):
     rewards_oracle = self._get_rewards_oracle()
@@ -247,7 +248,7 @@ class EurekaTaskManager:
             setattr(env, "_reset_idx", types.MethodType(namespace["_reset_idx"], env))
 
         # Add the GPT generated reward function to the environment
-        get_rewards_method_as_string = f"from {env.__module__} import * \n" + get_rewards_method_as_string
+        get_rewards_method_as_string = f"from {env.__module__} import * \nimport torch\n" + get_rewards_method_as_string
         exec(get_rewards_method_as_string, namespace)
         setattr(env, "_get_rewards_eureka", types.MethodType(namespace["_get_rewards_eureka"], env))
 

@@ -5,6 +5,7 @@
 """Script to train an RL agent with Isaac Lab Eureka."""
 
 import argparse
+import os
 
 from isaaclab_eureka.eureka import Eureka
 
@@ -51,8 +52,21 @@ if __name__ == "__main__":
         help="Controls the randomness of the GPT output (0 is deterministic, 1 is highly diverse).",
     )
     parser.add_argument("--gpt_model", type=str, default="gpt-4", help="The GPT model to use.")
-    parser.add_argument("--rl_library", type=str, default="rsl_rl", help="The RL training library to use.")
+    parser.add_argument(
+        "--rl_library",
+        type=str,
+        default="rsl_rl",
+        choices=["rsl_rl", "rl_games"],
+        help="The RL training library to use.",
+    )
     args_cli = parser.parse_args()
+
+    # Check parameter validity
+    if os.name == "nt" and args_cli.num_parallel_runs > 1:
+        print(
+            "[WARNING]: Running with num_parallel_runs > 1 is not supported on Windows. Setting num_parallel_runs = 1."
+        )
+        args_cli.num_parallel_runs = 1
 
     # Run the main function
     main(args_cli)
