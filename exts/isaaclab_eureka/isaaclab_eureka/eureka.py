@@ -236,7 +236,7 @@ class Eureka:
             print(f"{'*' * 20} Run: {idx} {'*' * 20}")
             if result["success"]:
                 print(f"Training successful with the following metrics:\n{result['eureka_task_feedback']}")
-                print(f"Reward correlation with oracle rewards:\n{result['rewards_correlation']}")
+                print(f"Reward correlation with oracle rewards:{result['rewards_correlation']}")
             else:
                 print(f"Training failed with the following exception:\n{result['exception']}\n")
 

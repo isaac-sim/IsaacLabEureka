@@ -22,7 +22,7 @@ We support the native Openai and the Azure Openai APIs.
 
 - Using a python interpreter that has Isaac Lab installed, install Isaac Lab Eureka
     ```
-    python -m pip install -e ext/isaaclab_eureka
+    python -m pip install -e exts/isaaclab_eureka
     ```
 
 ## Running Isaac Lab Eureka
@@ -112,8 +112,9 @@ For RL-Games, run:
 ### Limitations
 
 - Isaac Lab Eureka currently only supports tasks implemented in the direct-workflow style, basing off of the ``DirectRLEnv`` class.
-Available examples can be found in the [task config](exts/isaaclab_eureka/isaaclab_eureka/tasks.py). Following the ``DirectRLEnv``
+Available examples can be found in the [task config](exts/isaaclab_eureka/isaaclab_eureka/config/tasks.py). Following the ``DirectRLEnv``
 interface, we assume each task has the observation function implemented in a method named ``_get_observations()``.
+- Currently, only RSL RL and RL-Games libraries are supported.
 - Due to limitations of multiprocessing on Windows, running with argument ``num_parallel_runs`` > 1 is not supported on Windows.
 - When running with ``num_parallel_runs > 1`` on a single-GPU machine, training will run in parallel in the background and CPU and memory usage will increase.
 - Best policy is selected based on the ``successs_metric`` defined for the task. For best performance, make sure to define an accurate success metric in the task config to guide the reward function generation process.
