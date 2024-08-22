@@ -213,7 +213,7 @@ class Eureka:
                 metric_max = max(metric_data)
                 metric_mean = sum(metric_data) / len(metric_data)
                 # Best metric is the one closest to the target
-                metric_best = np.min(np.abs(np.array(metric_data) - self._successs_metric_to_win))
+                metric_best = np.mean(np.abs(np.array(metric_data) - self._successs_metric_to_win))
                 if metric_name == "success_metric":
                     metric_name = "task_score"
                     success_metric_max = metric_best
@@ -236,7 +236,7 @@ class Eureka:
             print(f"{'*' * 20} Run: {idx} {'*' * 20}")
             if result["success"]:
                 print(f"Training successful with the following metrics:\n{result['eureka_task_feedback']}")
-                print(f"Reward correlation with oracle rewards:{result['rewards_correlation']}")
+                print(f"Reward correlation with oracle rewards: {result['rewards_correlation']}")
             else:
                 print(f"Training failed with the following exception:\n{result['exception']}\n")
 

@@ -100,7 +100,7 @@ To run inference on an Eureka-trained policy, locate the path to the desired che
 For RSL RL, run:
 
 ```
-    python scripts/play.py --task=Isaac-Cartpole-Direct-v0 --lcheckpoint=/path/to/desired/checkpoint.pt --num_envs=20 --rl_library="rsl_rl"
+    python scripts/play.py --task=Isaac-Cartpole-Direct-v0 --checkpoint=/path/to/desired/checkpoint.pt --num_envs=20 --rl_library="rsl_rl"
 ```
 
 For RL-Games, run:
