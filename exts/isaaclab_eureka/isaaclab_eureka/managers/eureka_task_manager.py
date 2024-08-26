@@ -298,6 +298,8 @@ class EurekaTaskManager:
 
             agent_cfg = load_cfg_from_registry(self._task, "rl_games_cfg_entry_point")
             agent_cfg["params"]["config"]["max_epochs"] = self._max_training_iterations
+            agent_cfg["params"]["config"]["device"] = self._device
+            agent_cfg["params"]["config"]["device_name"] = self._device
             # specify directory for logging experiments
             log_root_path = os.path.join("logs", "rl_runs", "rl_games_eureka", agent_cfg["params"]["config"]["name"])
             log_root_path = os.path.abspath(log_root_path)
