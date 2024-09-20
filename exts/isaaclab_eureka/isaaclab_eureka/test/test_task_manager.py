@@ -62,6 +62,7 @@ class TestTaskManager(unittest.TestCase):
         cls._task_manager = EurekaTaskManager(
             task=task,
             device="cuda",
+            env_seed=42,
             rl_library="rsl_rl",
             num_processes=cls.num_parallel_runs,
             max_training_iterations=100,

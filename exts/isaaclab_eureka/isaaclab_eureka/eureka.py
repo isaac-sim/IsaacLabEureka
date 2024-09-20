@@ -28,6 +28,7 @@ class Eureka:
         self,
         task: str,
         device: str = "cuda",
+        env_seed: int = 42,
         rl_library: Literal["rsl_rl", "rl_games"] = "rsl_rl",
         max_training_iterations: int = 100,
         feedback_subsampling: int = 10,
@@ -41,6 +42,7 @@ class Eureka:
 
             task: The task to train the agent on.
             device: The device to run the training on.
+            env_seed: The seed to use for the environment
             rl_library: The RL library to use for training.
             max_training_iterations: The maximum number of training iterations for the RL agent.
             feedback_subsampling: The subsampling of the metrics given as feedack to the LLM.
@@ -76,6 +78,7 @@ class Eureka:
         self._task_manager = EurekaTaskManager(
             task=task,
             device=device,
+            env_seed=env_seed,
             rl_library=rl_library,
             num_processes=self._num_processes,
             max_training_iterations=max_training_iterations,
@@ -233,7 +236,7 @@ class Eureka:
     def _log_iteration_results(self, iter: int, results: list):
         """Log the results of the iteration."""
         for idx, result in enumerate(results):
-            print(f"{'*' * 20} Run: {idx} {'*' * 20}")
+            print(f"{'*' * 20} Iteration {iter} / Process: {idx} {'*' * 20}")
             if result["success"]:
                 print(f"Training successful with the following metrics:\n{result['eureka_task_feedback']}")
                 print(f"Reward correlation with oracle rewards: {result['rewards_correlation']}")

@@ -1,7 +1,7 @@
 # Isaac Lab Eureka
 
-[![IsaacSim](https://img.shields.io/badge/IsaacSim-4.0.0-silver.svg)](https://docs.omniverse.nvidia.com/isaacsim/latest/overview.html)
-[![Isaac Lab](https://img.shields.io/badge/IsaacLab-1.0.0-silver)](https://isaac-sim.github.io/IsaacLab)
+[![IsaacSim](https://img.shields.io/badge/IsaacSim-4.2.0-silver.svg)](https://docs.omniverse.nvidia.com/isaacsim/latest/overview.html)
+[![Isaac Lab](https://img.shields.io/badge/IsaacLab-1.2.0-silver)](https://isaac-sim.github.io/IsaacLab)
 [![Python](https://img.shields.io/badge/python-3.10-blue.svg)](https://docs.python.org/3/whatsnew/3.10.html)
 [![Linux platform](https://img.shields.io/badge/platform-linux--64-orange.svg)](https://releases.ubuntu.com/20.04/)
 [![Windows platform](https://img.shields.io/badge/platform-windows--64-orange.svg)](https://www.microsoft.com/en-us/)
@@ -89,7 +89,8 @@ python scripts\train.py --task=Isaac-Cartpole-Direct-v0 --max_training_iteration
 
 For each Eureka run, logs for the Eureka iterations are available under ``IsaacLabEureka/logs/eureka``.
 This directory holds files containing the output from each Eureka iteration, as well as output and metrics
-of the final Eureka results for the task.
+of the final Eureka results for the task. The tensorboard log also contains a Text tab which shows the raw LLM output
+and the provided feedback at every iteration.
 
 In addition, trained policies during the Eureka run are saved under ``IsaacLabEureka/logs/rl_runs``.
 This directory contains checkpoints for each valid Eureka run, similar to the checkpoints available
