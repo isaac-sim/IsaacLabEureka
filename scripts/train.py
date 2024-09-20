@@ -16,6 +16,7 @@ def main(args_cli):
         rl_library=args_cli.rl_library,
         num_parallel_runs=args_cli.num_parallel_runs,
         device=args_cli.device,
+        env_seed=args_cli.env_seed,
         max_training_iterations=args_cli.max_training_iterations,
         feedback_subsampling=args_cli.feedback_subsampling,
         temperature=args_cli.temperature,
@@ -32,6 +33,7 @@ if __name__ == "__main__":
         "--num_parallel_runs", type=int, default=1, help="Number of Eureka runs to execute in parallel."
     )
     parser.add_argument("--device", type=str, default="cuda", help="The device to run training on.")
+    parser.add_argument("--env_seed", type=int, default=42, help="The random seed to use for the environment.")
     parser.add_argument("--max_eureka_iterations", type=int, default=5, help="The number of Eureka iterations to run.")
     parser.add_argument(
         "--max_training_iterations",

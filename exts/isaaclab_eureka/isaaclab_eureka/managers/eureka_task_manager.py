@@ -66,6 +66,7 @@ class EurekaTaskManager:
         rl_library: Literal["rsl_rl", "rl_games"] = "rsl_rl",
         num_processes: int = 1,
         device: str = "cuda",
+        env_seed: int = 42,
         max_training_iterations: int = 100,
         success_metric_string: str = "",
     ):
@@ -76,6 +77,7 @@ class EurekaTaskManager:
             rl_library: The RL library to use for training.
             num_processes: The number of processes to use for training.
             device: The device to run training on.
+            env_seed: The seed to use for the environment.
             max_training_iterations: The maximum number of training iterations.
             success_metric_string: A string that represents an expression to calculate the success metric for the task.
         """
@@ -85,6 +87,7 @@ class EurekaTaskManager:
         self._device = device
         self._max_training_iterations = max_training_iterations
         self._success_metric_string = success_metric_string
+        self._env_seed = env_seed
         if self._success_metric_string:
             self._success_metric_string = "extras['Eureka/success_metric'] = " + self._success_metric_string
 
@@ -216,6 +219,7 @@ class EurekaTaskManager:
 
         env_cfg: DirectRLEnvCfg = parse_env_cfg(self._task)
         env_cfg.sim.device = self._device
+        env_cfg.seed = self._env_seed
         self._env = gym.make(self._task, cfg=env_cfg)
 
     def _prepare_eureka_environment(self, get_rewards_method_as_string: str):
@@ -286,7 +290,6 @@ class EurekaTaskManager:
 
             env = RslRlVecEnvWrapper(self._env)
             runner = OnPolicyRunner(env, agent_cfg.to_dict(), log_dir=self._log_dir, device=agent_cfg.device)
-            env.seed(agent_cfg.seed)
             runner.learn(num_learning_iterations=agent_cfg.max_iterations, init_at_random_ep_len=True)
 
         elif self._rl_library == "rl_games":
@@ -332,9 +335,6 @@ class EurekaTaskManager:
             # create runner from rl-games
             runner = Runner(IsaacAlgoObserver())
             runner.load(agent_cfg)
-
-            # set seed of the env
-            env.seed(agent_cfg["params"]["seed"])
             # reset the agent and env
             runner.reset()
             # train the agent
