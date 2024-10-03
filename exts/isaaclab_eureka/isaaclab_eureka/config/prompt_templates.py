@@ -39,12 +39,12 @@ Please fix the bug and provide a new, improved reward function!
 """ + DIRECT_WORKFLOW_REWARD_FORMATTING_INSTRUCTIONS
 
 
-TASK_SUCCESS_PRE_FEEDBACK_PROMT = """
+TASK_SUCCESS_PRE_FEEDBACK_PROMPT = """
 We trained a RL policy using the provided reward function code and tracked the values of the individual components in the reward function as well as global policy metrics such as success rates and episode lengths after every {feedback_subsampling} epochs and the maximum, mean, minimum values encountered:
 """
 
 
-TASK_SUCCESS_POST_FEEDBACK_PROMT = """
+TASK_SUCCESS_POST_FEEDBACK_PROMPT = """
 Please carefully analyze the policy feedback and provide a new, improved reward function that can better solve the task. Some helpful tips for analyzing the policy feedback:
     (1) If the success rates are always near zero, then you must rewrite the entire reward function
     (2) If the values for a certain reward component are near identical throughout, then this means RL is not able to optimize this component as it is written. You may consider
@@ -56,7 +56,7 @@ Please analyze each existing reward component in the suggested manner above firs
 """ + DIRECT_WORKFLOW_REWARD_FORMATTING_INSTRUCTIONS
 
 
-DIRECT_WORKFLOW_TASK_PROMT = """
+DIRECT_WORKFLOW_TASK_PROMPT = """
 Write a reward function for the following task: {task_description}
 The desired task score is: {success_metric_to_win}
 Here is how we get the observations from the environment:

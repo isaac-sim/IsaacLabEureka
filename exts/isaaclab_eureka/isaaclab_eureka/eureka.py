@@ -11,10 +11,10 @@ from typing import Literal
 from isaaclab_eureka import EUREKA_ROOT_DIR
 from isaaclab_eureka.config import (
     DIRECT_WORKFLOW_INITIAL_PROMPT,
-    DIRECT_WORKFLOW_TASK_PROMT,
+    DIRECT_WORKFLOW_TASK_PROMPT,
     TASK_FAILURE_FEEDBACK_PROMPT,
-    TASK_SUCCESS_POST_FEEDBACK_PROMT,
-    TASK_SUCCESS_PRE_FEEDBACK_PROMT,
+    TASK_SUCCESS_POST_FEEDBACK_PROMPT,
+    TASK_SUCCESS_PRE_FEEDBACK_PROMPT,
     TASKS_CFG,
 )
 from isaaclab_eureka.managers import EurekaTaskManager, LLMManager
@@ -98,7 +98,7 @@ class Eureka:
             max_eureka_iterations: The maximum number of Eureka iterations to run.
         """
         # Initial prompts
-        user_prompt = DIRECT_WORKFLOW_TASK_PROMT.format(
+        user_prompt = DIRECT_WORKFLOW_TASK_PROMPT.format(
             task_description=self._task_description,
             success_metric_to_win=self._success_metric_to_win,
             get_observations_method_as_string=self._task_manager.get_observations_method_as_string,
@@ -133,9 +133,9 @@ class Eureka:
 
                     # Generate the user feedback prompt
                     user_feedback_prompt = (
-                        TASK_SUCCESS_PRE_FEEDBACK_PROMT.format(feedback_subsampling=self._feedback_subsampling)
+                        TASK_SUCCESS_PRE_FEEDBACK_PROMPT.format(feedback_subsampling=self._feedback_subsampling)
                         + eureka_task_feedback
-                        + TASK_SUCCESS_POST_FEEDBACK_PROMT
+                        + TASK_SUCCESS_POST_FEEDBACK_PROMPT
                     )
 
                     # Store the results
