@@ -33,7 +33,7 @@ Your goal is to write a reward function for the environment that will help the a
 """ + DIRECT_WORKFLOW_REWARD_FORMATTING_INSTRUCTIONS
 
 
-TASK_FAILURE_FEEBACK_PROMPT = """
+TASK_FAILURE_FEEDBACK_PROMPT = """
 Executing the reward function code above has the following error: {traceback_msg}.
 Please fix the bug and provide a new, improved reward function!
 """ + DIRECT_WORKFLOW_REWARD_FORMATTING_INSTRUCTIONS

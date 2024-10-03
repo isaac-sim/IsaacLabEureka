@@ -66,7 +66,7 @@ class TestTaskManager(unittest.TestCase):
             rl_library="rsl_rl",
             num_processes=cls.num_parallel_runs,
             max_training_iterations=100,
-            success_metric_string=TASKS_CFG[task].get("successs_metric"),
+            success_metric_string=TASKS_CFG[task].get("success_metric"),
         )
 
     @classmethod

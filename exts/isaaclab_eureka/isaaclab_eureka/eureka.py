@@ -12,7 +12,7 @@ from isaaclab_eureka import EUREKA_ROOT_DIR
 from isaaclab_eureka.config import (
     DIRECT_WORKFLOW_INITIAL_PROMPT,
     DIRECT_WORKFLOW_TASK_PROMT,
-    TASK_FAILURE_FEEBACK_PROMPT,
+    TASK_FAILURE_FEEDBACK_PROMPT,
     TASK_SUCCESS_POST_FEEDBACK_PROMT,
     TASK_SUCCESS_PRE_FEEDBACK_PROMT,
     TASKS_CFG,
@@ -54,9 +54,9 @@ class Eureka:
         # Load the task description and success metric
         if task in TASKS_CFG:
             task_description = TASKS_CFG[task]["description"]
-            successs_metric_string = TASKS_CFG[task].get("successs_metric")
-            self._successs_metric_to_win = TASKS_CFG[task].get("successs_metric_to_win")
-            self._successs_metric_tolerance = TASKS_CFG[task].get("successs_metric_tolerance")
+            success_metric_string = TASKS_CFG[task].get("success_metric")
+            self._success_metric_to_win = TASKS_CFG[task].get("success_metric_to_win")
+            self._success_metric_tolerance = TASKS_CFG[task].get("success_metric_tolerance")
         else:
             raise ValueError(
                 f"Task configuration for {task} not found in the `TASKS_CFG` dictionary in config/tasks.py."
@@ -82,7 +82,7 @@ class Eureka:
             rl_library=rl_library,
             num_processes=self._num_processes,
             max_training_iterations=max_training_iterations,
-            success_metric_string=successs_metric_string,
+            success_metric_string=success_metric_string,
         )
 
         # Logging
@@ -100,7 +100,7 @@ class Eureka:
         # Initial prompts
         user_prompt = DIRECT_WORKFLOW_TASK_PROMT.format(
             task_description=self._task_description,
-            success_metric_to_win=self._successs_metric_to_win,
+            success_metric_to_win=self._success_metric_to_win,
             get_observations_method_as_string=self._task_manager.get_observations_method_as_string,
         )
         # The assistant prompt is used to feed the previous LLM output back into the LLM
@@ -124,7 +124,7 @@ class Eureka:
             best_run_idx = 0
             for idx, result in enumerate(results):
                 if not result["success"]:
-                    user_feedback_prompt = TASK_FAILURE_FEEBACK_PROMPT.format(traceback_msg=result["exception"])
+                    user_feedback_prompt = TASK_FAILURE_FEEDBACK_PROMPT.format(traceback_msg=result["exception"])
                 else:
                     # Compute the performance metrics
                     eureka_task_feedback, success_metric_max, rewards_correlation = self._get_eureka_task_feedback(
@@ -146,8 +146,8 @@ class Eureka:
                     # Check the best performing metric, determined by the minimum distance from the win target
                     if success_metric_max is not None and (
                         iter_best_success_metric is None
-                        or np.abs(success_metric_max - self._successs_metric_to_win)
-                        < np.abs(iter_best_success_metric - self._successs_metric_to_win)
+                        or np.abs(success_metric_max - self._success_metric_to_win)
+                        < np.abs(iter_best_success_metric - self._success_metric_to_win)
                     ):
                         # Store the best run for this iteration
                         iter_best_success_metric = success_metric_max
@@ -155,12 +155,12 @@ class Eureka:
 
                         # Store the best metric across all iterations
                         if best_run_results["success_metric"] is None or (
-                            np.abs(iter_best_success_metric - self._successs_metric_to_win)
-                            < np.abs(best_run_results["success_metric"] - self._successs_metric_to_win)
+                            np.abs(iter_best_success_metric - self._success_metric_to_win)
+                            < np.abs(best_run_results["success_metric"] - self._success_metric_to_win)
                         ):
                             best_run_results["success_metric"] = iter_best_success_metric
                             best_run_results["gpt_reward_method"] = gpt_reward_method_strings[idx]
-                            best_run_results["task_feeback"] = eureka_task_feedback
+                            best_run_results["task_feedback"] = eureka_task_feedback
 
                 # Add the prompts
                 results[idx]["user_prompt"] = user_feedback_prompt
@@ -170,8 +170,8 @@ class Eureka:
 
             if (
                 best_run_results["success_metric"] is not None
-                and np.abs(best_run_results["success_metric"] - self._successs_metric_to_win)
-                < self._successs_metric_tolerance
+                and np.abs(best_run_results["success_metric"] - self._success_metric_to_win)
+                < self._success_metric_tolerance
             ):
                 print(f"Task solved with success metric: {best_run_results['success_metric']}")
                 break
@@ -216,7 +216,7 @@ class Eureka:
                 metric_max = max(metric_data)
                 metric_mean = sum(metric_data) / len(metric_data)
                 # Best metric is the one closest to the target
-                metric_best = np.mean(np.abs(np.array(metric_data) - self._successs_metric_to_win))
+                metric_best = np.mean(np.abs(np.array(metric_data) - self._success_metric_to_win))
                 if metric_name == "success_metric":
                     metric_name = "task_score"
                     success_metric_max = metric_best
@@ -230,7 +230,7 @@ class Eureka:
                     feedback_string = ""
                 total_feed_back_string += feedback_string
 
-        total_feed_back_string += f"\nThe desired task_score to win is: {self._successs_metric_to_win:.2f}\n"
+        total_feed_back_string += f"\nThe desired task_score to win is: {self._success_metric_to_win:.2f}\n"
         return total_feed_back_string, success_metric_max, rewards_correlation
 
     def _log_iteration_results(self, iter: int, results: list):
@@ -265,7 +265,7 @@ class Eureka:
         if best_run_results["success_metric"] is not None:
             output += f"- Success metric: {best_run_results['success_metric']}\n"
             output += f"- GPT reward method: {best_run_results['gpt_reward_method']}\n"
-            output += f"- Task metrics:\n{best_run_results['task_feeback']}\n"
+            output += f"- Task metrics:\n{best_run_results['task_feedback']}\n"
         else:
             output += "- No successful training run\n"
 

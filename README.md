@@ -118,7 +118,7 @@ interface, we assume each task has the observation function implemented in a met
 - Currently, only RSL RL and RL-Games libraries are supported.
 - Due to limitations of multiprocessing on Windows, running with argument ``num_parallel_runs`` > 1 is not supported on Windows.
 - When running with ``num_parallel_runs > 1`` on a single-GPU machine, training will run in parallel in the background and CPU and memory usage will increase.
-- Best policy is selected based on the ``successs_metric`` defined for the task. For best performance, make sure to define an accurate success metric in the task config to guide the reward function generation process.
+- Best policy is selected based on the ``success_metric`` defined for the task. For best performance, make sure to define an accurate success metric in the task config to guide the reward function generation process.
 - During the reward generation process, the LLM may generate code that introduces syntax or logical errors during the training process. In such case, the error message will be propagated to the output and the Eureka iteration will be skipped.
 
 
