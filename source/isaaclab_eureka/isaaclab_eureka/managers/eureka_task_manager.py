@@ -203,7 +203,7 @@ class EurekaTaskManager:
 
     def _create_environment(self):
         """Create the environment for the task."""
-        from omni.isaac.lab.app import AppLauncher
+        from isaaclab.app import AppLauncher
 
         if self._device == "cuda":
             device_id = get_freest_gpu()
@@ -213,9 +213,9 @@ class EurekaTaskManager:
 
         import gymnasium as gym
 
-        import omni.isaac.lab_tasks  # noqa: F401
-        from omni.isaac.lab.envs import DirectRLEnvCfg
-        from omni.isaac.lab_tasks.utils import parse_env_cfg
+        import isaaclab_tasks  # noqa: F401
+        from isaaclab.envs import DirectRLEnvCfg
+        from isaaclab_tasks.utils import parse_env_cfg
 
         env_cfg: DirectRLEnvCfg = parse_env_cfg(self._task)
         env_cfg.sim.device = self._device
@@ -268,12 +268,12 @@ class EurekaTaskManager:
 
     def _run_training(self, framework: Literal["rsl_rl", "rl_games"] = "rsl_rl"):
         """Run the training of the task."""
-        from omni.isaac.lab_tasks.utils.parse_cfg import load_cfg_from_registry
+        from isaaclab_tasks.utils.parse_cfg import load_cfg_from_registry
 
         if self._rl_library == "rsl_rl":
             from rsl_rl.runners import OnPolicyRunner
 
-            from omni.isaac.lab_tasks.utils.wrappers.rsl_rl import RslRlOnPolicyRunnerCfg, RslRlVecEnvWrapper
+            from isaaclab_tasks.utils.wrappers.rsl_rl import RslRlOnPolicyRunnerCfg, RslRlVecEnvWrapper
 
             agent_cfg: RslRlOnPolicyRunnerCfg = load_cfg_from_registry(self._task, "rsl_rl_cfg_entry_point")
             agent_cfg.device = self._device
@@ -297,7 +297,7 @@ class EurekaTaskManager:
             from rl_games.common.algo_observer import IsaacAlgoObserver
             from rl_games.torch_runner import Runner
 
-            from omni.isaac.lab_tasks.utils.wrappers.rl_games import RlGamesGpuEnv, RlGamesVecEnvWrapper
+            from isaaclab_tasks.utils.wrappers.rl_games import RlGamesGpuEnv, RlGamesVecEnvWrapper
 
             agent_cfg = load_cfg_from_registry(self._task, "rl_games_cfg_entry_point")
             agent_cfg["params"]["config"]["max_epochs"] = self._max_training_iterations

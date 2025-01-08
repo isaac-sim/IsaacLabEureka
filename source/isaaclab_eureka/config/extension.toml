@@ -15,9 +15,11 @@ repository = "https://github.com/isaac-sim/IsaacLabEureka.git"
 keywords = ["extension", "template", "isaaclab", "eureka"]
 
 [dependencies]
-"omni.isaac.lab" = {}
-"omni.isaac.lab_assets" = {}
-"omni.isaac.lab_tasks" = {}
+"isaaclab" = {}
+"isaaclab_assets" = {}
+"isaclab_mimic" = {}
+"isaaclab_rl" = {}
+"isaaclab_tasks" = {}
 # NOTE: Add additional dependencies here
 
 [[python.module]]
