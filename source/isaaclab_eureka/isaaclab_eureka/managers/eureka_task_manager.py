@@ -273,7 +273,7 @@ class EurekaTaskManager:
         if self._rl_library == "rsl_rl":
             from rsl_rl.runners import OnPolicyRunner
 
-            from isaaclab_tasks.utils.wrappers.rsl_rl import RslRlOnPolicyRunnerCfg, RslRlVecEnvWrapper
+            from isaaclab_rl.rsl_rl import RslRlOnPolicyRunnerCfg, RslRlVecEnvWrapper
 
             agent_cfg: RslRlOnPolicyRunnerCfg = load_cfg_from_registry(self._task, "rsl_rl_cfg_entry_point")
             agent_cfg.device = self._device
@@ -297,7 +297,7 @@ class EurekaTaskManager:
             from rl_games.common.algo_observer import IsaacAlgoObserver
             from rl_games.torch_runner import Runner
 
-            from isaaclab_tasks.utils.wrappers.rl_games import RlGamesGpuEnv, RlGamesVecEnvWrapper
+            from isaaclab_rl.rl_games import RlGamesGpuEnv, RlGamesVecEnvWrapper
 
             agent_cfg = load_cfg_from_registry(self._task, "rl_games_cfg_entry_point")
             agent_cfg["params"]["config"]["max_epochs"] = self._max_training_iterations
