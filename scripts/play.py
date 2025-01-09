@@ -81,6 +81,8 @@ def main(args_cli):
         # parse checkpoint path
         agent_cfg["params"]["load_checkpoint"] = True
         agent_cfg["params"]["load_path"] = checkpoint
+        agent_cfg["params"]["config"]["device"] = device
+        agent_cfg["params"]["config"]["device_name"] = device
         clip_obs = agent_cfg["params"]["env"].get("clip_observations", math.inf)
         clip_actions = agent_cfg["params"]["env"].get("clip_actions", math.inf)
         env = RlGamesVecEnvWrapper(env, device, clip_obs, clip_actions)
