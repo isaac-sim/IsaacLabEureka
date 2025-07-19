@@ -63,12 +63,18 @@ if __name__ == "__main__":
     )
     args_cli = parser.parse_args()
 
-    # Check parameter validity
-    if os.name == "nt" and args_cli.num_parallel_runs > 1:
-        print(
-            "[WARNING]: Running with num_parallel_runs > 1 is not supported on Windows. Setting num_parallel_runs = 1."
-        )
-        args_cli.num_parallel_runs = 1
+    # # Check parameter validity
+    # if os.name == "nt" and args_cli.num_parallel_runs > 1:
+    #     print(
+    #         "[WARNING]: Running with num_parallel_runs > 1 is not supported on Windows. Setting num_parallel_runs = 1."
+    #     )
+    #     args_cli.num_parallel_runs = 1
+
+    import multiprocessing as mp
+    mp.set_start_method("spawn", force=True)  # Ensures Windows compatibility
+    mp.freeze_support()  # Needed for pyinstaller and Windows
+
+    args_cli = parser.parse_args()
 
     # Run the main function
     main(args_cli)

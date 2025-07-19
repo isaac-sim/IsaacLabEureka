@@ -1,3 +1,6 @@
 **/__pycache__/
 *.egg-info
 logs/
+
+#vscode
+.vscode/
