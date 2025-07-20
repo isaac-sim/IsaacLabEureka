@@ -5,7 +5,6 @@
 import datetime
 import numpy as np
 import os
-from torch.utils.tensorboard import SummaryWriter as TensorboardSummaryWriter
 from typing import Literal
 
 from isaaclab_eureka import EUREKA_ROOT_DIR
@@ -89,6 +88,10 @@ class Eureka:
         timestamp = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
         self._log_dir = os.path.join(EUREKA_ROOT_DIR, "logs", "eureka", task, timestamp)
         os.makedirs(self._log_dir)
+
+        # We import here because doing this before launching Kit causes GLIBCXX errors
+        from torch.utils.tensorboard import SummaryWriter as TensorboardSummaryWriter
+
         self._tensorboard_writer = TensorboardSummaryWriter(log_dir=self._log_dir, flush_secs=10)
 
     def run(self, max_eureka_iterations: int):
