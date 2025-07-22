@@ -32,19 +32,72 @@ You are a reward engineer trying to write reward functions to solve reinforcemen
 Your goal is to write a reward function for the environment that will help the agent learn the task described in text.
 """ + DIRECT_WORKFLOW_REWARD_FORMATTING_INSTRUCTIONS
 
+MANAGER_WORKFLOW_REWARD_FORMATTING_INSTRUCTIONS = """
+Generate the following structure exactly:
+"```python
+    @configclass
+    class <ClassName>:
+        # existing config fields if any
+        <field1>: Type = Default
+        <field2>: Type = Default
 
-TASK_FAILURE_FEEDBACK_PROMPT = """
+        # Reward terms
+        term_name1 = RewTerm(
+            func=
+            def func(env: ManagerBasedRLEnv, ee_frame_cfg: SceneEntityCfg = SceneEntityCfg("ee_frame")) -> torch.Tensor:
+                # your code here
+                ...
+                return reward_tensor.to(env.device)
+            ,
+            weight=<float>,
+            params={...},
+        )
+
+        term_name2 = RewTerm(
+            func=
+            def func(env: ManagerBasedRLEnv, robot_cfg: SceneEntityCfg = SceneEntityCfg("robot")) -> torch.Tensor:
+                # another reward
+                ...
+                return reward_tensor.to(env.device)
+            ,
+            weight=<float>,
+            params={...},
+        )
+...
+
+```"
+
+- Include as many `RewTerm` definitions as needed for the task.
+- Each inline `def func` must be indented exactly 12 spaces from the file margin.
+- Do not include any other methods or imports.
+- Ensure each reward function returns a `(self.num_envs,)` tensor on `env.device`.
+"""
+
+MANAGER_WORKFLOW_INITIAL_PROMPT = """
+You are a reward‑engineering assistant specializing in IsaacLab’s `ManagerBasedRLEnv` workflows.
+Your task is to generate a complete `@configclass` definition including decorator, class header,
+and one or more `RewTerm` fields.
+These should be referenced in the reward functions you define.
+
+Wrap your entire output as plain text (no markdown fences).
+""" +  MANAGER_WORKFLOW_REWARD_FORMATTING_INSTRUCTIONS
+
+DIRECT_TASK_FAILURE_FEEDBACK_PROMPT = """
 Executing the reward function code above has the following error: {traceback_msg}.
 Please fix the bug and provide a new, improved reward function!
 """ + DIRECT_WORKFLOW_REWARD_FORMATTING_INSTRUCTIONS
+
+MANAGER_TASK_FAILURE_FEEDBACK_PROMPT = """
+Executing the reward function code above has the following error: {traceback_msg}.
+Please fix the bug and provide a new, improved reward function!
+""" + MANAGER_WORKFLOW_REWARD_FORMATTING_INSTRUCTIONS
 
 
 TASK_SUCCESS_PRE_FEEDBACK_PROMPT = """
 We trained a RL policy using the provided reward function code and tracked the values of the individual components in the reward function as well as global policy metrics such as success rates and episode lengths after every {feedback_subsampling} epochs and the maximum, mean, minimum values encountered:
 """
 
-
-TASK_SUCCESS_POST_FEEDBACK_PROMPT = """
+DIRECT_TASK_SUCCESS_POST_FEEDBACK_PROMPT = """
 Please carefully analyze the policy feedback and provide a new, improved reward function that can better solve the task. Some helpful tips for analyzing the policy feedback:
     (1) If the success rates are always near zero, then you must rewrite the entire reward function
     (2) If the values for a certain reward component are near identical throughout, then this means RL is not able to optimize this component as it is written. You may consider
@@ -55,10 +108,28 @@ Please carefully analyze the policy feedback and provide a new, improved reward 
 Please analyze each existing reward component in the suggested manner above first, and then write the reward function code.
 """ + DIRECT_WORKFLOW_REWARD_FORMATTING_INSTRUCTIONS
 
+MANAGER_TASK_SUCCESS_POST_FEEDBACK_PROMPT = """
+Please carefully analyze the policy feedback and provide a new, improved reward function that can better solve the task. Some helpful tips for analyzing the policy feedback:
+    (1) If the success rates are always near zero, then you must rewrite the entire reward function
+    (2) If the values for a certain reward component are near identical throughout, then this means RL is not able to optimize this component as it is written. You may consider
+        (a) Changing its scale or the value of its temperature parameter
+        (b) Re-writing the reward component
+        (c) Discarding the reward component
+    (3) If some reward components' magnitude is significantly larger, then you must re-scale its value to a proper range
+Please analyze each existing reward component in the suggested manner above first, and then write the reward function code.
+""" + MANAGER_WORKFLOW_REWARD_FORMATTING_INSTRUCTIONS
+
 
 DIRECT_WORKFLOW_TASK_PROMPT = """
 Write a reward function for the following task: {task_description}
 The desired task score is: {success_metric_to_win}
 Here is how we get the observations from the environment:
+{get_observations_method_as_string}
+"""
+
+MANAGER_WORKFLOW_TASK_PROMPT = """
+Write a reward function for the following task: {task_description}
+The desired task score is: {success_metric_to_win}
+Here is the configuration for the environment observations and the default reward, this should give you an idea of how to write the reward function:
 {get_observations_method_as_string}
 """

@@ -8,6 +8,7 @@ TASKS_CFG = {
         "success_metric": "self.episode_length_buf[env_ids].float().mean() / self.max_episode_length",
         "success_metric_to_win": 1.0,
         "success_metric_tolerance": 0.01,
+        "direct": True
     },
     "Isaac-Quadcopter-Direct-v0": {
         "description": (
@@ -18,8 +19,21 @@ TASKS_CFG = {
         ),
         "success_metric_to_win": 0.0,
         "success_metric_tolerance": 0.2,
+        "direct": True
+    },
+    "SBRI-OpenXR-Shadow-v0": {
+        "description": (
+            "Make the shadow hand match a frame of openXR handtracking data."
+        ),
+        "success_metric": (
+            "0.0"
+        ),
+        "success_metric_to_win": 0.0,
+    "success_metric_tolerance": 0.2,
+        "direct": False
     },
 }
+
 """Configuration for the tasks supported by Isaac Lab Eureka.
 
 `TASKS_CFG` is a dictionary that maps task names to their configuration. Each task configuration

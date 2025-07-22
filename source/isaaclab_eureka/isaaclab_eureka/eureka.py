@@ -12,9 +12,13 @@ from isaaclab_eureka import EUREKA_ROOT_DIR
 from isaaclab_eureka.config import (
     DIRECT_WORKFLOW_INITIAL_PROMPT,
     DIRECT_WORKFLOW_TASK_PROMPT,
-    TASK_FAILURE_FEEDBACK_PROMPT,
-    TASK_SUCCESS_POST_FEEDBACK_PROMPT,
+    DIRECT_TASK_FAILURE_FEEDBACK_PROMPT,
+    DIRECT_TASK_SUCCESS_POST_FEEDBACK_PROMPT,
     TASK_SUCCESS_PRE_FEEDBACK_PROMPT,
+    MANAGER_WORKFLOW_INITIAL_PROMPT,
+    MANAGER_WORKFLOW_TASK_PROMPT,
+    MANAGER_TASK_FAILURE_FEEDBACK_PROMPT,
+    MANAGER_TASK_SUCCESS_POST_FEEDBACK_PROMPT,
     TASKS_CFG,
 )
 from isaaclab_eureka.managers import EurekaTaskManager, LLMManager
@@ -57,6 +61,7 @@ class Eureka:
             success_metric_string = TASKS_CFG[task].get("success_metric")
             self._success_metric_to_win = TASKS_CFG[task].get("success_metric_to_win")
             self._success_metric_tolerance = TASKS_CFG[task].get("success_metric_tolerance")
+            self._is_direct_env = TASKS_CFG[task].get("direct")
         else:
             raise ValueError(
                 f"Task configuration for {task} not found in the `TASKS_CFG` dictionary in config/tasks.py."
@@ -71,7 +76,7 @@ class Eureka:
             gpt_model=gpt_model,
             num_suggestions=self._num_processes,
             temperature=temperature,
-            system_prompt=DIRECT_WORKFLOW_INITIAL_PROMPT,
+            system_prompt=DIRECT_WORKFLOW_INITIAL_PROMPT if self._is_direct_env else MANAGER_WORKFLOW_INITIAL_PROMPT,
         )
 
         print("[INFO]: Setting up the Task Manager...")
@@ -98,11 +103,18 @@ class Eureka:
             max_eureka_iterations: The maximum number of Eureka iterations to run.
         """
         # Initial prompts
-        user_prompt = DIRECT_WORKFLOW_TASK_PROMPT.format(
-            task_description=self._task_description,
-            success_metric_to_win=self._success_metric_to_win,
-            get_observations_method_as_string=self._task_manager.get_observations_method_as_string,
-        )
+        if self._is_direct_env:
+            user_prompt = DIRECT_WORKFLOW_TASK_PROMPT.format(
+                task_description=self._task_description,
+                success_metric_to_win=self._success_metric_to_win,
+                get_observations_method_as_string=self._task_manager.get_observations_method_as_string,
+            )
+        else:
+            user_prompt = MANAGER_WORKFLOW_TASK_PROMPT.format(
+                task_description=self._task_description,
+                success_metric_to_win=self._success_metric_to_win,
+                get_observations_method_as_string=self._task_manager.get_observations_method_as_string,
+            )
         # The assistant prompt is used to feed the previous LLM output back into the LLM
         assistant_prompt = None
 
@@ -124,7 +136,11 @@ class Eureka:
             best_run_idx = 0
             for idx, result in enumerate(results):
                 if not result["success"]:
-                    user_feedback_prompt = TASK_FAILURE_FEEDBACK_PROMPT.format(traceback_msg=result["exception"])
+                    if self._is_direct_env:
+                        # Generate the user feedback prompt for direct tasks
+                        user_feedback_prompt = DIRECT_TASK_FAILURE_FEEDBACK_PROMPT.format(traceback_msg=result["exception"])
+                    else:
+                        user_feedback_prompt = MANAGER_TASK_FAILURE_FEEDBACK_PROMPT.format(traceback_msg=result["exception"])
                 else:
                     # Compute the performance metrics
                     eureka_task_feedback, success_metric_max, rewards_correlation = self._get_eureka_task_feedback(
@@ -132,11 +148,18 @@ class Eureka:
                     )
 
                     # Generate the user feedback prompt
-                    user_feedback_prompt = (
-                        TASK_SUCCESS_PRE_FEEDBACK_PROMPT.format(feedback_subsampling=self._feedback_subsampling)
-                        + eureka_task_feedback
-                        + TASK_SUCCESS_POST_FEEDBACK_PROMPT
-                    )
+                    if self._is_direct_env:
+                        user_feedback_prompt = (
+                            TASK_SUCCESS_PRE_FEEDBACK_PROMPT.format(feedback_subsampling=self._feedback_subsampling)
+                            + eureka_task_feedback
+                            + DIRECT_TASK_SUCCESS_POST_FEEDBACK_PROMPT
+                        )
+                    else:
+                        user_feedback_prompt = (
+                            TASK_SUCCESS_PRE_FEEDBACK_PROMPT.format(feedback_subsampling=self._feedback_subsampling)
+                            + eureka_task_feedback
+                            + MANAGER_TASK_SUCCESS_POST_FEEDBACK_PROMPT
+                        )
 
                     # Store the results
                     results[idx]["eureka_task_feedback"] = eureka_task_feedback
