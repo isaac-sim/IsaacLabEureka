@@ -355,7 +355,7 @@ class _EurekaWorker:
                 except Exception as e:
                     result = {"success": False, "exception": str(e)}
                     print(traceback.format_exc())
-            if isinstance(reward_func_string, str) and reward_func_string.startswith("@configclass\nclass"):
+            elif isinstance(reward_func_string, str) and reward_func_string.startswith("@configclass\nclass"):
                 try:
                     self._prepare_manager_eureka_environment(reward_func_string)
                     context = MuteOutput() if self._idx > 0 else nullcontext()
