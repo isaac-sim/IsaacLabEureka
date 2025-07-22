@@ -80,7 +80,7 @@ class LLMManager:
         if len(self._prompts) == 6:
             self._prompts.pop(2)
             self._prompts.pop(2)
-
+        
         try:
             responses = self._client.chat.completions.create(
                 model=self._gpt_model,

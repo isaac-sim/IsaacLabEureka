@@ -33,44 +33,35 @@ Your goal is to write a reward function for the environment that will help the a
 """ + DIRECT_WORKFLOW_REWARD_FORMATTING_INSTRUCTIONS
 
 MANAGER_WORKFLOW_REWARD_FORMATTING_INSTRUCTIONS = """
-Generate the following structure exactly:
+Generate the following structure exactly, including indents, replacing the placeholders with your actual code or don't use them if not needed:
 "```python
-    @configclass
-    class <ClassName>:
-        # existing config fields if any
-        <field1>: Type = Default
-        <field2>: Type = Default
 
-        # Reward terms
-        term_name1 = RewTerm(
-            func=
-            def func(env: ManagerBasedRLEnv, ee_frame_cfg: SceneEntityCfg = SceneEntityCfg("ee_frame")) -> torch.Tensor:
-                # your code here
-                ...
-                return reward_tensor.to(env.device)
-            ,
-            weight=<float>,
-            params={...},
-        )
+# 1) Define as many private methods as needed:
+def _<term_name>(env: ManagerBasedRLEnv, <other params...>) -> torch.Tensor:
+    #Compute the '<term_name>' reward
+    ...
+    return reward_tensor.to(env.device)
 
-        term_name2 = RewTerm(
-            func=
-            def func(env: ManagerBasedRLEnv, robot_cfg: SceneEntityCfg = SceneEntityCfg("robot")) -> torch.Tensor:
-                # another reward
-                ...
-                return reward_tensor.to(env.device)
-            ,
-            weight=<float>,
-            params={...},
-        )
-...
+def _<more_term_names>(env: ManagerBasedRLEnv, <other params...>) -> torch.Tensor:
+    ...
 
+@configclass
+class EUREKA_REWARD_CONFIG: #<-- KEEP NAME EXACTLY AS IS
+
+    # 2) Create Reward Terms for each reward function you defined above:
+    <term_name> = RewTerm(
+        func=_<term_name>,
+        weight=<float>,
+        params={...},
+    )
+
+    ...
 ```"
-
 - Include as many `RewTerm` definitions as needed for the task.
-- Each inline `def func` must be indented exactly 12 spaces from the file margin.
-- Do not include any other methods or imports.
-- Ensure each reward function returns a `(self.num_envs,)` tensor on `env.device`.
+- Do not include any other methods or imports, any undefined function you see will also work the same way for your code.
+- Ensure each reward function returns a `(num_envs,)` tensor on `env.device`.
+- You may put whatever is helpful before and after the ```python .... ``` block as it will not be executed
+- comment your code to explain what each reward term does
 """
 
 MANAGER_WORKFLOW_INITIAL_PROMPT = """

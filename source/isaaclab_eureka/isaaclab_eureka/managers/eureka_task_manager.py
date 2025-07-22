@@ -31,31 +31,33 @@ def _get_rewards(self):
 """
 
 MANAGER_TEMPLATE_REWARD_STRING = """
-from {module_name} import *
-import torch
-
-eureka_reward_manager = self.reward_manager
 
 def compute(self, dt: float) -> torch.Tensor:
-        # self._reward_buf[:] = 0.0
-        # # iterate over all the reward terms
-        # for term_idx, (name, term_cfg) in enumerate(zip(self._term_names, self._term_cfgs)):
-        #     # skip if weight is zero (kind of a micro-optimization)
-        #     if term_cfg.weight == 0.0:
-        #         self._step_reward[:, term_idx] = 0.0
-        #         continue
-        #     # compute term's value
-        #     value = term_cfg.func(self._env, **term_cfg.params) * term_cfg.weight * dt
-        #     # update total reward
-        #     self._reward_buf += value
-        #     # update episodic sum
-        #     self._episode_sums[name] += value
 
-        #     # Update current reward for this step.
-        #     self._step_reward[:, term_idx] = value / dt
+        
+        self._eureka_episode_sums["oracle_total_rewards"] += self._compute_rewards_oracle()
 
-        self._eureka_episode_sums["eureka_total_rewards"] += rewards_eureka
-        self._eureka_episode_sums["oracle_total_rewards"] += self._get_rewards_oracle()
+        self._reward_buf[:] = 0.0
+        # iterate over all the reward terms
+        for term_idx, (name, term_cfg) in enumerate(zip(self._term_names, self._term_cfgs)):
+            # skip if weight is zero (kind of a micro-optimization)
+            if term_cfg.weight == 0.0:
+                self._step_reward[:, term_idx] = 0.0
+                continue
+            # compute term's value
+            value = term_cfg.func(self._env, **term_cfg.params) * term_cfg.weight * dt
+            # update total reward
+            self._reward_buf += value
+            if key not in self._eureka_episode_sums:
+                self._eureka_episode_sums[key] = torch.zeros(self.num_envs, device=self.device)
+            self._eureka_episode_sums[key] += value
+            # update episodic sum
+            self._episode_sums[name] += value
+
+            # Update current reward for this step.
+            self._step_reward[:, term_idx] = value / dt
+
+        self._eureka_episode_sums["eureka_total_rewards"] += self._reward_buf
 
         return self._reward_buf
 """
@@ -80,6 +82,16 @@ def _reset_idx(self, env_ids):
         extras["Eureka/"+key] = episodic_sum_avg / self.max_episode_length_s
         self._eureka_episode_sums[key][env_ids] = 0.0
     self.extras["log"].update(extras)
+"""
+
+MANAGER_IMPORT_STRING = """
+import torch
+from isaaclab.envs import ManagerBasedRLEnv
+from isaaclab.assets import Articulation, RigidObject, RigidObjectCollection
+from isaaclab.assets import RigidObject
+from isaaclab.managers import SceneEntityCfg
+from isaaclab.utils.math import *
+from {module_name} import *
 """
 
 def eureka_worker_main(
@@ -217,16 +229,27 @@ class _EurekaWorker:
 
         env = self._env.unwrapped
         namespace = {}
+
+        # Add the imports to the namespace
+
         # Check if the environment has already been prepared
         if not hasattr(env.reward_manager, "_compute_rewards_eureka"):
+            template_manager_import_string = MANAGER_IMPORT_STRING.format(module_name=env.cfg.__module__)
+            exec(template_manager_import_string, namespace)
             # rename the environment's original reward function to _get_rewards_oracle
-            env.reward_manager._get_rewards_oracle = env.reward_manager.compute
+            exec(get_rewards_method_as_string, namespace)
+            eureka_reward_manager = type(env.reward_manager)(namespace['EUREKA_REWARD_CONFIG'](), env)
+            eureka_reward_manager._compute_rewards_oracle = env.reward_manager.compute
+            eureka_reward_manager._compute_rewards_eureka = eureka_reward_manager.compute
+
+            exec(MANAGER_TEMPLATE_REWARD_STRING, namespace)
+            setattr(eureka_reward_manager, "compute", types.MethodType(namespace["compute"], eureka_reward_manager))
+
+            env.reward_manager = eureka_reward_manager
             # rename to environment's initial reset function to _reset_idx_original
             env._reset_idx_original = env._reset_idx
             # set the _get_rewards method to the template method
-            template_reward_string_with_module = MANAGER_TEMPLATE_REWARD_STRING.format(module_name=env.__module__)
-            exec(template_reward_string_with_module, namespace)
-            setattr(env, "_get_rewards", types.MethodType(namespace["_get_rewards"], env))
+            
             # set the _reset_idx method to the template method
             template_reset_string_with_success_metric = TEMPLATE_RESET_STRING.format(
                 module_name=env.__module__, success_metric=self._success_metric_string
@@ -344,7 +367,7 @@ class _EurekaWorker:
                         )
                     self._observations_queue.put(self._observation_string)
 
-            reward_func_string = self._rewards_queue.get()
+            reward_func_string = self._rewards_queue.get().strip()
             if isinstance(reward_func_string, str) and reward_func_string.startswith("def _get_rewards_eureka(self)"):
                 try:
                     self._prepare_direct_eureka_environment(reward_func_string)
@@ -355,7 +378,7 @@ class _EurekaWorker:
                 except Exception as e:
                     result = {"success": False, "exception": str(e)}
                     print(traceback.format_exc())
-            elif isinstance(reward_func_string, str) and reward_func_string.startswith("@configclass\nclass"):
+            elif isinstance(reward_func_string, str) and "@configclass\nclass EUREKA_REWARD_CONFIG" in reward_func_string:
                 try:
                     self._prepare_manager_eureka_environment(reward_func_string)
                     context = MuteOutput() if self._idx > 0 else nullcontext()

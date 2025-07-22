@@ -16,7 +16,7 @@
             "name": "Train Eureka",
             "type": "debugpy",
             "request": "launch",
-            "args" : ["--task", "Isaac-Cartpole-Direct-v0", "--num_parallel_runs", "1", "--max_training_iterations", "50","--max_eureka_iterations", "5", "--rl_library", "rsl_rl"],
+            "args" : ["--task", "SBRI-OpenXR-Shadow-v0", "--num_parallel_runs", "1", "--max_training_iterations", "50","--max_eureka_iterations", "5", "--rl_library", "rsl_rl"],
             "program": "${workspaceFolder}/scripts/train.py",
             "console": "integratedTerminal",
         },
