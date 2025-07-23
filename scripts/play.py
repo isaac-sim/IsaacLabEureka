@@ -6,9 +6,6 @@
 
 import argparse
 import math
-import torch
-
-from rl_games.common.player import BasePlayer
 
 from isaaclab_eureka.utils import get_freest_gpu
 
@@ -16,6 +13,7 @@ from isaaclab_eureka.utils import get_freest_gpu
 def main(args_cli):
     """Create the environment for the task."""
     from isaaclab.app import AppLauncher
+    import torch
 
     # parse args from cmdline
     device = args_cli.device
@@ -100,6 +98,9 @@ def main(args_cli):
         runner.load(agent_cfg)
 
         # obtain the agent from the runner
+        # we import this here to avoid GLIBC errors with Isaac Sim 5.0 in conda
+        from rl_games.common.player import BasePlayer
+
         agent: BasePlayer = runner.create_player()
         agent.restore(checkpoint)
         agent.reset()
