@@ -3,10 +3,11 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import datetime
-import numpy as np
 import os
 from typing import Literal
 
+# we import this here to avoid GLIBCXX_3.4.30 error in Isaac Sim 5.1
+from isaaclab.app import AppLauncher
 from isaaclab_eureka import EUREKA_ROOT_DIR
 from isaaclab_eureka.config import (
     DIRECT_WORKFLOW_INITIAL_PROMPT,
@@ -100,6 +101,9 @@ class Eureka:
         Args:
             max_eureka_iterations: The maximum number of Eureka iterations to run.
         """
+        # We import here because doing this before launching Kit causes GCC_12.0 errors
+        import numpy as np
+
         # Initial prompts
         user_prompt = DIRECT_WORKFLOW_TASK_PROMPT.format(
             task_description=self._task_description,
@@ -195,6 +199,9 @@ class Eureka:
         Returns:
             A tuple containing the feedback string, the maximum of the success metric, and the correlation between the oracle and GPT rewards.
         """
+        # We import here because doing this before launching Kit causes GCC_12.0 errors
+        import numpy as np
+
         data = load_tensorboard_logs(log_dir)
         # Compute correlation between the oracle and GPT rewards
         eureka_rewards = np.array(

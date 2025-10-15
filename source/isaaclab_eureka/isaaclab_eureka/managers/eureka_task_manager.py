@@ -212,7 +212,6 @@ class EurekaTaskManager:
         self._simulation_app = app_launcher.app
 
         import gymnasium as gym
-
         import isaaclab_tasks  # noqa: F401
         from isaaclab.envs import DirectRLEnvCfg
         from isaaclab_tasks.utils import parse_env_cfg
@@ -271,9 +270,8 @@ class EurekaTaskManager:
         from isaaclab_tasks.utils.parse_cfg import load_cfg_from_registry
 
         if self._rl_library == "rsl_rl":
-            from rsl_rl.runners import OnPolicyRunner
-
             from isaaclab_rl.rsl_rl import RslRlOnPolicyRunnerCfg, RslRlVecEnvWrapper
+            from rsl_rl.runners import OnPolicyRunner
 
             agent_cfg: RslRlOnPolicyRunnerCfg = load_cfg_from_registry(self._task, "rsl_rl_cfg_entry_point")
             agent_cfg.device = self._device
@@ -293,11 +291,10 @@ class EurekaTaskManager:
             runner.learn(num_learning_iterations=agent_cfg.max_iterations, init_at_random_ep_len=True)
 
         elif self._rl_library == "rl_games":
+            from isaaclab_rl.rl_games import RlGamesGpuEnv, RlGamesVecEnvWrapper
             from rl_games.common import env_configurations, vecenv
             from rl_games.common.algo_observer import IsaacAlgoObserver
             from rl_games.torch_runner import Runner
-
-            from isaaclab_rl.rl_games import RlGamesGpuEnv, RlGamesVecEnvWrapper
 
             agent_cfg = load_cfg_from_registry(self._task, "rl_games_cfg_entry_point")
             agent_cfg["params"]["config"]["max_epochs"] = self._max_training_iterations
