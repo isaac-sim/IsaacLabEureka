@@ -235,7 +235,7 @@ class Eureka:
                     f"{metric_name}: {data_string}, Min: {metric_min:.2f}, Max: {metric_max:.2f}, Mean:"
                     f" {metric_mean:.2f} \n"
                 )
-                if "Eureka/success_metric" in data and metric_name == "Eureka/oracle_total_rewards":
+                if "Eureka/success_metric" in data and metric_name == "oracle_total_rewards":
                     # If success metric is available, we do not provide the oracle feedback
                     feedback_string = ""
                 total_feed_back_string += feedback_string
