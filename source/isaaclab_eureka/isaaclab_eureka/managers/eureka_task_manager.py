@@ -198,8 +198,10 @@ class EurekaTaskManager:
             self._results_queue.put((self._idx, result))
         # Clean up
         print(f"[INFO]: Run {self._idx} terminated.")
-        self._env.close()
-        self._simulation_app.close()
+        if hasattr(self, "_env"):
+            self._env.close()
+        if hasattr(self, "_simulation_app"):
+            self._simulation_app.close()
 
     def _create_environment(self):
         """Create the environment for the task."""
