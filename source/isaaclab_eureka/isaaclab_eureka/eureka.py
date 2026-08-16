@@ -204,15 +204,16 @@ class Eureka:
 
         data = load_tensorboard_logs(log_dir)
         # Compute correlation between the oracle and GPT rewards
-        eureka_rewards = np.array(
-            next((data[key] for key in data if key.endswith("Eureka/eureka_total_rewards")), None)
-        )
-        oracle_rewards = np.array(
-            next((data[key] for key in data if key.endswith("Eureka/oracle_total_rewards")), None)
-        )
-        # Sometimes, the tensorboard logging is not complete, we take the minimum length between the two buffers
-        min_length = min(eureka_rewards.shape[0], oracle_rewards.shape[0])
-        rewards_correlation = np.corrcoef(eureka_rewards[:min_length], oracle_rewards[:min_length])[0, 1]
+        eureka_rewards = next((data[key] for key in data if key.endswith("Eureka/eureka_total_rewards")), None)
+        oracle_rewards = next((data[key] for key in data if key.endswith("Eureka/oracle_total_rewards")), None)
+        rewards_correlation = 0.0
+        if eureka_rewards is not None and oracle_rewards is not None:
+            eureka_rewards = np.array(eureka_rewards)
+            oracle_rewards = np.array(oracle_rewards)
+            # Sometimes, the tensorboard logging is not complete, we take the minimum length between the two buffers
+            min_length = min(eureka_rewards.shape[0], oracle_rewards.shape[0])
+            if min_length > 1:
+                rewards_correlation = np.corrcoef(eureka_rewards[:min_length], oracle_rewards[:min_length])[0, 1]
 
         success_metric_max = None
         # Make a summary of each plot in the tensorboard logs
