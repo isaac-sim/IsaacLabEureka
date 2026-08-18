@@ -337,4 +337,4 @@ class EurekaTaskManager:
             # train the agent
             runner.run({"train": True, "play": False, "sigma": None})
         else:
-            raise Exception(f"framework {framework} is not supported yet.")
+            raise Exception(f"RL library {framework} is not supported yet.")
